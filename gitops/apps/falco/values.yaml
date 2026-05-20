@@ -1,10 +1,27 @@
 driver:
   kind: modern_ebpf
+  modernEbpf:
+    # Single-CPU spot nodes (c7a.*) cannot allocate one buffer per 2 CPUs.
+    cpusForEachBuffer: 1
+    bufSizePreset: 3
 
 falco:
   webserver:
     enabled: true
     prometheus_metrics_enabled: true
+
+# Falco OOMs (exit 137) during modern eBPF init on small nodes; probes then see connection refused.
+healthChecks:
+  readinessProbe:
+    initialDelaySeconds: 90
+    periodSeconds: 15
+    timeoutSeconds: 5
+    failureThreshold: 6
+  livenessProbe:
+    initialDelaySeconds: 120
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 5
 
 serviceAccount:
   create: true
@@ -107,4 +124,4 @@ resources:
     memory: 256Mi
   limits:
     cpu: 500m
-    memory: 512Mi
+    memory: 1Gi
