@@ -21,6 +21,7 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - RespectIgnoreDifferences=true
+      - ServerSideDiff=true
   ignoreDifferences:
     - group: admissionregistration.k8s.io
       kind: ValidatingWebhookConfiguration
@@ -28,5 +29,9 @@ spec:
         - .webhooks[]?.failurePolicy
     - group: apps
       kind: Deployment
-      jsonPointers:
-        - /spec/replicas
+      name: istiod
+      jqPathExpressions:
+        - .spec.replicas
+        # SSA/kube normalize quantities (2048Mi -> 2Gi) and env defaults.
+        - .spec.template.spec.containers[].resources
+        - .spec.template.spec.containers[].env
