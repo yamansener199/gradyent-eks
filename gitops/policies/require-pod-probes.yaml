@@ -1,0 +1,42 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-pod-probes
+  annotations:
+    policies.kyverno.io/title: Require Pod Probes
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/severity: medium
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: validate-probes
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+                - argocd
+                - karpenter
+                - istio-system
+                - cilium-secrets
+                - cert-manager
+                - monitoring
+                - observability
+                - logging
+                - falco
+      validate:
+        message: Liveness and readiness probes are required for all containers.
+        pattern:
+          spec:
+            containers:
+              - livenessProbe:
+                  periodSeconds: ">0"
+              - readinessProbe:
+                  periodSeconds: ">0"

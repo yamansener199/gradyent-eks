@@ -1,0 +1,53 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: drop-all-capabilities
+  annotations:
+    policies.kyverno.io/title: Drop All Capabilities
+    policies.kyverno.io/category: Pod Security
+    policies.kyverno.io/severity: medium
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: drop-all
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+                - argocd
+                - karpenter
+                - istio-system
+                - cilium-secrets
+                - cert-manager
+                - monitoring
+                - observability
+                - logging
+                - falco
+      validate:
+        message: >-
+          All capabilities must be dropped. Only add NET_BIND_SERVICE if strictly required.
+        pattern:
+          spec:
+            =(ephemeralContainers):
+              - securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+            =(initContainers):
+              - securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+            containers:
+              - securityContext:
+                  capabilities:
+                    drop:
+                      - ALL

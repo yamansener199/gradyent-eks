@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Enforced on all namespaces except platform stacks listed in each policy's exclude block.
+resources:
+  - disallow-privilege-escalation.yaml
+  - disallow-privileged-containers.yaml
+  - disallow-host-namespaces.yaml
+  - disallow-host-path.yaml
+  - disallow-latest-tag.yaml
+  - require-run-as-non-root.yaml
+  - require-requests-limits.yaml
+  - drop-all-capabilities.yaml
+  - restrict-capabilities.yaml
+  - require-pod-probes.yaml
+  - disallow-default-namespace.yaml

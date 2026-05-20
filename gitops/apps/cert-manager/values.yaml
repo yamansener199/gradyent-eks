@@ -1,0 +1,32 @@
+crds:
+  enabled: true
+
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: true
+    labels:
+      release: kube-prometheus-stack
+
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+    effect: NoSchedule
+
+webhook:
+  tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+      effect: NoSchedule
+
+cainjector:
+  tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+      effect: NoSchedule
+
+startupapicheck:
+  tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+      effect: NoSchedule

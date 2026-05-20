@@ -1,0 +1,22 @@
+provisionDataStore:
+  cassandra: false
+  elasticsearch: false
+
+allInOne:
+  enabled: true
+  service:
+    type: ClusterIP
+
+collector:
+  enabled: true
+  service:
+    zipkin:
+      port: 9411
+
+query:
+  enabled: true
+  service:
+    type: ClusterIP
+
+storage:
+  type: memory

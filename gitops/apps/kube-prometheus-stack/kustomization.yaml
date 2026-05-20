@@ -1,0 +1,67 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: monitoring
+
+helmCharts:
+  - name: kube-prometheus-stack
+    repo: https://prometheus-community.github.io/helm-charts
+    version: 69.8.2
+    releaseName: kube-prometheus-stack
+    namespace: monitoring
+    valuesFile: values.yaml
+
+resources:
+  - manifests/grafana-admin-secret.yaml
+  - manifests/alertmanager-notification-secret.yaml
+  - manifests/istio-servicemonitors.yaml
+  - manifests/platform-servicemonitors.yaml
+
+configMapGenerator:
+  - name: grafana-dashboards-nodes
+    files:
+      - dashboards/nodes/node-exporter-full.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      annotations:
+        grafana_folder: Nodes
+  - name: grafana-dashboards-storage
+    files:
+      - dashboards/storage/k8s-persistent-volumes.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      annotations:
+        grafana_folder: Storage
+  - name: grafana-dashboards-platform
+    files:
+      - dashboards/platform/istio-mesh.json
+      - dashboards/platform/istio-control-plane.json
+      - dashboards/platform/cilium-metrics.json
+      - dashboards/platform/karpenter.json
+      - dashboards/platform/hubble-overview.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      annotations:
+        grafana_folder: Platform
+  - name: grafana-dashboards-observability
+    files:
+      - dashboards/observability/falco.json
+      - dashboards/observability/jaeger.json
+      - dashboards/observability/cert-manager.json
+      - dashboards/observability/fluentd-health.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      annotations:
+        grafana_folder: Observability
+  - name: grafana-dashboards-overview
+    files:
+      - dashboards/overview/gradyent-cluster-overview.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      annotations:
+        grafana_folder: Overview

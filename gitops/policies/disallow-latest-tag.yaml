@@ -1,0 +1,50 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-latest-tag
+  annotations:
+    policies.kyverno.io/title: Disallow latest Image Tag
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/severity: medium
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-image-tag
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+                - argocd
+                - karpenter
+                - istio-system
+                - cilium-secrets
+                - cert-manager
+                - monitoring
+                - observability
+                - logging
+                - falco
+      validate:
+        message: >-
+          Using a mutable image tag such as 'latest' is not allowed. Pin an immutable tag or digest.
+        foreach:
+          - list: "request.object.spec.[initContainers, ephemeralContainers, containers][]"
+            deny:
+              conditions:
+                any:
+                  - key: "{{ element.image }}"
+                    operator: Equals
+                    value: "*:latest"
+                  - key: "{{ element.image }}"
+                    operator: Equals
+                    value: "latest"
+                  - key: "{{ regex_match('^[^:]+$', '{{ element.image }}') }}"
+                    operator: Equals
+                    value: true

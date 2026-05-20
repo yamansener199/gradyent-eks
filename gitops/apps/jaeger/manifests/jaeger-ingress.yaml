@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jaeger-query
+  namespace: observability
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443},{"HTTP":80}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  ingressClassName: alb
+  tls:
+    - hosts:
+        - jaeger.dummy.cool
+      secretName: jaeger-query-tls
+  rules:
+    - host: jaeger.dummy.cool
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jaeger-query
+                port:
+                  number: 80

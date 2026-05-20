@@ -1,0 +1,27 @@
+# Terraform / Terragrunt
+**/.terraform/
+**/.terragrunt-cache/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Kustomize Helm chart cache (kubectl kustomize --enable-helm)
+gitops/apps/**/charts/
+
+# Secrets
+.env
+.env.*
+*.pem
+secrets/

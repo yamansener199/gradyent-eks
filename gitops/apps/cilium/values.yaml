@@ -1,0 +1,51 @@
+# AWS EKS ENI mode — sole CNI (vpc-cni and kube-proxy removed from EKS add-ons).
+cni:
+  exclusive: true
+  enableRouteMTUForCNIChain: true
+
+eni:
+  enabled: true
+  awsReleaseExcessIPs: true
+
+ipam:
+  mode: eni
+
+routingMode: native
+kubeProxyReplacement: true
+k8sServiceHost: auto
+k8sServicePort: auto
+
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: kube-prometheus-stack
+
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    service:
+      type: ClusterIP
+  metrics:
+    enabled:
+      - dns
+      - drop
+      - tcp
+      - flow
+      - port-distribution
+      - icmp
+      - http
+    serviceMonitor:
+      enabled: true
+      labels:
+        release: kube-prometheus-stack
+
+operator:
+  replicas: 2
+
+tolerations:
+  - operator: Exists

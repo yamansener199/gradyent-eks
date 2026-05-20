@@ -1,0 +1,48 @@
+name: Infrastructure CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "modules/**"
+      - "environments/**"
+      - "_envcommon/**"
+      - "root.hcl"
+  pull_request:
+    paths:
+      - "modules/**"
+      - "environments/**"
+      - "_envcommon/**"
+      - "root.hcl"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: environments/prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      - name: Setup Terragrunt
+        run: |
+          curl -fsSL -o /tmp/tg.zip \
+            "https://github.com/gruntwork-io/terragrunt/releases/download/v0.68.16/terragrunt_linux_amd64.zip"
+          unzip -q /tmp/tg.zip -d /usr/local/bin
+          terragrunt --version
+
+      - name: Terragrunt HCL format check
+        run: terragrunt hcl fmt --check --diff
+
+      - name: Validate all units
+        env:
+          TG_ACCOUNT_ID: "000000000000"
+          AWS_DEFAULT_REGION: eu-central-1
+          TERRAGRUNT_NON_INTERACTIVE: "true"
+          TF_IN_AUTOMATION: "true"
+        run: terragrunt run-all validate

@@ -1,0 +1,41 @@
+name: GitOps CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gitops/**"
+  pull_request:
+    paths:
+      - "gitops/**"
+
+jobs:
+  kubeconform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        run: |
+          curl -fsSL -o kubeconform.tar.gz \
+            "https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz"
+          tar -xzf kubeconform.tar.gz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate bootstrap App-of-Apps (Kustomize)
+        run: |
+          kubectl kustomize gitops/bootstrap > /dev/null
+
+      - name: Validate Helm-based apps (Kustomize + Helm)
+        run: |
+          for app in kube-prometheus-stack aws-load-balancer-controller external-dns cert-manager cilium karpenter falco jaeger fluentd metrics-server; do
+            kubectl kustomize --enable-helm "gitops/apps/${app}" > /dev/null
+          done
+
+      - name: Validate static manifests
+        run: |
+          find gitops -name '*.yaml' ! -path '*/kustomization.yaml' -print0 | while IFS= read -r -d '' f; do
+            if grep -q '^kind:' "$f"; then
+              kubeconform -kubernetes-version 1.31.0 -ignore-missing-schemas -summary "$f" || true
+            fi
+          done

@@ -1,0 +1,7 @@
+# Istio sidecar injection for platform namespaces only (no default/app namespaces yet).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    istio-injection: enabled

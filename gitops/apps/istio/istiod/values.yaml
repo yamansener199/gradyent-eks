@@ -1,0 +1,17 @@
+global:
+  meshID: gradyent-prod
+  multiCluster:
+    clusterName: gradyent-prod
+
+meshConfig:
+  enableAutoMtls: true
+  defaultConfig:
+    tracing:
+      zipkin:
+        address: jaeger-collector.observability.svc.cluster.local:9411
+    proxyMetadata:
+      ISTIO_META_DNS_CAPTURE: "true"
+
+pilot:
+  autoscaleEnabled: true
+  autoscaleMin: 2

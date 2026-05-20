@@ -1,0 +1,25 @@
+# IRSA role ARN: read from ConfigMap gradyent-irsa-roles in argocd namespace after Terraform apply.
+# Role name is deterministic: gradyent-prod-karpenter-controller
+serviceAccount:
+  create: true
+  name: karpenter
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::043470661424:role/gradyent-prod-karpenter-controller
+
+settings:
+  clusterName: gradyent-prod
+  interruptionQueue: Karpenter-gradyent-prod
+
+controller:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+    effect: NoSchedule

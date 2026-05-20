@@ -1,0 +1,12 @@
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: default-tracing
+  namespace: istio-system
+spec:
+  tracing:
+    - providers:
+        - name: zipkin
+      randomSamplingPercentage: 10
+      zipkin:
+        address: jaeger-collector.observability.svc.cluster.local:9411

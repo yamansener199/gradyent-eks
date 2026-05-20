@@ -1,0 +1,23 @@
+# IRSA role ARN patched by Terraform bootstrap (gradyent-prod-aws-load-balancer-controller).
+clusterName: gradyent-prod
+region: eu-central-1
+# vpcId patched by Terraform bootstrap from irsa_map.
+vpcId: ""
+
+serviceAccount:
+  create: true
+  name: aws-load-balancer-controller
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::043470661424:role/gradyent-prod-aws-load-balancer-controller
+
+enableCertManager: true
+
+defaultTags:
+  Environment: prod
+  Project: gradyent
+  ManagedBy: argocd
+
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+    effect: NoSchedule

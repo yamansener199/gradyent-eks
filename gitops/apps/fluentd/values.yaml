@@ -1,0 +1,74 @@
+kind: DaemonSet
+
+serviceAccount:
+  create: true
+  name: fluentd
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::043470661424:role/gradyent-prod-fluentd
+
+tolerations:
+  - operator: Exists
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+fileConfigs:
+  01_sources.conf: |-
+    <source>
+      @type tail
+      @id in_tail_container_logs
+      path /var/log/containers/*.log
+      pos_file /var/log/fluentd-containers.log.pos
+      tag kubernetes.*
+      read_from_head true
+      <parse>
+        @type cri
+      </parse>
+    </source>
+
+  02_filters.conf: |-
+    <filter kubernetes.**>
+      @type kubernetes_metadata
+      @id filter_kube_metadata
+    </filter>
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type json
+        json_parser json
+      </parse>
+    </filter>
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        cluster gradyent-prod
+        environment prod
+      </record>
+    </filter>
+
+  03_outputs.conf: |-
+    <match kubernetes.**>
+      @type cloudwatch_logs
+      region eu-central-1
+      log_group_name /eks/gradyent-prod/containers
+      log_stream_name_key $.kubernetes.pod_name
+      auto_create_stream true
+      <buffer>
+        @type file
+        path /var/log/fluentd-buffers/kubernetes
+        flush_interval 10s
+        retry_forever true
+      </buffer>
+    </match>
+
+plugins:
+  - fluent-plugin-kubernetes_metadata_filter
+  - fluent-plugin-cloudwatch-logs

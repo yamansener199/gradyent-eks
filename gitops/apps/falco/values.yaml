@@ -1,0 +1,111 @@
+driver:
+  kind: modern_ebpf
+
+falco:
+  jsonOutput: true
+  jsonIncludeOutputProperty: true
+  webserver:
+    enabled: true
+    prometheus_metrics_enabled: true
+
+serviceAccount:
+  create: true
+  name: falco
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::043470661424:role/gradyent-prod-falco
+
+falcosidekick:
+  enabled: true
+  config:
+    slack:
+      channel: "#platform-alerts-falco"
+      minimumpriority: warning
+      username: "Falco"
+      outputformat: all
+    extraEnv:
+      - name: SLACK_WEBHOOKURL
+        valueFrom:
+          secretKeyRef:
+            name: falcosidekick-notification-secrets
+            key: slack-webhook-url
+
+customRules:
+  custom-rules.yaml: |-
+    - list: miner_pool_ports
+      items: [3333, 4444, 5555, 7777, 14433, 14444, 45700]
+
+    - rule: Shell in Container
+      desc: Detect shell execution inside container namespaces
+      condition: >
+        spawned_process and container and
+        proc.name in (sh, bash, dash, zsh, ash) and
+        (proc.args contains "/bin/sh" or proc.args contains "sh -c")
+      output: >
+        Shell spawned in container
+        (user=%user.name container=%container.name shell=%proc.name cmdline=%proc.cmdline)
+      priority: WARNING
+      tags: [shell, mitre_execution]
+
+    - rule: Exec into Container
+      desc: Detect execution of debug or remote-access tools inside containers
+      condition: >
+        spawned_process and container and
+        proc.name in (kubectl, docker, crictl, ctr, nsenter, runc)
+      output: >
+        Exec or runtime tool spawned in container
+        (user=%user.name container=%container.name proc=%proc.name cmdline=%proc.cmdline)
+      priority: WARNING
+      tags: [exec, mitre_execution]
+
+    - rule: Sensitive File Read in Container
+      desc: Read of credential or system files inside a container
+      condition: >
+        open_read and container and
+        (fd.name startswith /etc/shadow or
+         fd.name startswith /etc/sudoers or
+         fd.name contains "id_rsa" or
+         fd.name contains "id_dsa" or
+         fd.name contains kubeconfig or
+         fd.name contains ".aws/credentials")
+      output: >
+        Sensitive file read in container
+        (user=%user.name container=%container.name file=%fd.name proc=%proc.name cmdline=%proc.cmdline)
+      priority: WARNING
+      tags: [filesystem, mitre_credential_access]
+
+    - rule: Cryptominer Outbound Connection
+      desc: Outbound connection to ports or domains associated with mining pools
+      condition: >
+        outbound and container and
+        (fd.sport in (miner_pool_ports) or fd.dport in (miner_pool_ports) or
+         fd.sip.name contains "mining" or fd.sip.name contains "minergate" or
+         fd.sip.name contains "nanopool" or fd.sip.name contains "f2pool" or
+         fd.sip.name contains "antpool" or fd.sip.name contains "ethermine" or
+         fd.sip.name contains "nicehash" or fd.sip.name contains "stratum" or
+         fd.sip.name contains "xmr" or fd.sip.name contains "monero")
+      output: >
+        Potential cryptominer network activity
+        (user=%user.name container=%container.name connection=%fd.name proc=%proc.cmdline)
+      priority: CRITICAL
+      tags: [network, miner, mitre_impact]
+
+metrics:
+  enabled: true
+  service:
+    enabled: true
+
+serviceMonitor:
+  create: true
+  labels:
+    release: kube-prometheus-stack
+
+tolerations:
+  - operator: Exists
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

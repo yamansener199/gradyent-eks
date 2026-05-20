@@ -1,0 +1,32 @@
+# IRSA role ARN patched by Terraform bootstrap (gradyent-prod-external-dns).
+provider:
+  name: aws
+
+aws:
+  region: eu-central-1
+
+domainFilters:
+  - dummy.cool
+
+policy: sync
+txtOwnerId: gradyent-prod
+txtPrefix: externaldns-
+
+registry: txt
+
+sources:
+  - ingress
+  - service
+
+serviceAccount:
+  create: true
+  name: external-dns
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::043470661424:role/gradyent-prod-external-dns
+
+logLevel: info
+
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+    effect: NoSchedule

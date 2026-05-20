@@ -1,0 +1,49 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged-containers
+  annotations:
+    policies.kyverno.io/title: Disallow Privileged Containers
+    policies.kyverno.io/category: Pod Security
+    policies.kyverno.io/severity: high
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: privileged-containers
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+                - argocd
+                - karpenter
+                - istio-system
+                - cilium-secrets
+                - cert-manager
+                - monitoring
+                - observability
+                - logging
+                - falco
+      validate:
+        message: Privileged mode is not allowed for any container.
+        pattern:
+          spec:
+            =(ephemeralContainers):
+              - securityContext:
+                  allowPrivilegeEscalation: false
+                  =(privileged): false
+            =(initContainers):
+              - securityContext:
+                  allowPrivilegeEscalation: false
+                  =(privileged): false
+            containers:
+              - securityContext:
+                  allowPrivilegeEscalation: false
+                  =(privileged): false
