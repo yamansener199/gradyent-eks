@@ -6,16 +6,36 @@ metadata:
     policies.kyverno.io/title: Disallow default Namespace
     policies.kyverno.io/category: Best Practices
     policies.kyverno.io/severity: low
+    # Autogen maps Pod namespace checks to spec.template.metadata.namespace,
+    # which rejects valid controllers (e.g. Falco) that omit pod template namespace.
+    pod-policies.kyverno.io/autogen-controllers: none
 spec:
   validationFailureAction: Enforce
   background: true
   rules:
-    - name: validate-namespace
+    - name: validate-pod-namespace
       match:
         any:
           - resources:
               kinds:
                 - Pod
+      validate:
+        message: >-
+          Using the default namespace is not allowed. Create a dedicated namespace for workloads.
+        pattern:
+          metadata:
+            namespace: "!default"
+    - name: validate-controller-namespace
+      match:
+        any:
+          - resources:
+              kinds:
+                - Deployment
+                - DaemonSet
+                - StatefulSet
+                - Job
+                - CronJob
+                - ReplicaSet
       validate:
         message: >-
           Using the default namespace is not allowed. Create a dedicated namespace for workloads.
