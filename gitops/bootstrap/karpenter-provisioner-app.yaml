@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: karpenter
+  name: karpenter-provisioner
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "1"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -12,21 +12,10 @@ spec:
   sources:
     - repoURL: https://github.com/gradyent/gradyent.ai.git
       targetRevision: main
-      path: gitops/apps/karpenter
+      path: gitops/apps/karpenter-provisioner
   destination:
     server: https://kubernetes.default.svc
     namespace: karpenter
   syncPolicy:
     syncOptions:
-      - CreateNamespace=true
       - ServerSideApply=true
-      - RespectIgnoreDifferences=true
-  ignoreDifferences:
-    - group: apps
-      kind: Deployment
-      jsonPointers:
-        - /spec/replicas
-    - group: apiextensions.k8s.io
-      kind: CustomResourceDefinition
-      jqPathExpressions:
-        - .status

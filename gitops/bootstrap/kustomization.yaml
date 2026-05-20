@@ -12,6 +12,7 @@ resources:
   # aws-lbc, external-dns, ACM TLS, argocd-ingress: installed by Terraform before Argo CD.
   - metrics-server-app.yaml
   - karpenter-app.yaml
+  - karpenter-provisioner-app.yaml
   - cilium-app.yaml
   - kyverno-app.yaml
   - kyverno-policies-app.yaml

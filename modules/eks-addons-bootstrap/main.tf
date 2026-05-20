@@ -114,6 +114,22 @@ resource "helm_release" "argocd" {
           url = "https://argocd.${var.platform_domain}"
           # gitops/apps/* use Kustomize helmCharts generators (same as gitops-ci.yml).
           "kustomize.buildOptions" = "--enable-helm"
+          # CRDs can take a few seconds to reach Established; wait instead of failing mid-sync.
+          "resource.customizations.health.apiextensions.k8s.io_CustomResourceDefinition" = <<-EOT
+            hs = {}
+            if obj.status ~= nil and obj.status.conditions ~= nil then
+              for _, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Established" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = "CRD is established"
+                  return hs
+                end
+              end
+            end
+            hs.status = "Progressing"
+            hs.message = "Waiting for CRD to be established"
+            return hs
+          EOT
         }
         params = {
           # TLS terminates at ALB; server speaks HTTP to the load balancer.

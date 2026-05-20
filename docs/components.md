@@ -13,7 +13,8 @@ All Applications are defined under [`gitops/bootstrap/`](../gitops/bootstrap/) a
 | Application | Wave | Path | Destination namespace | Chart / type |
 |-------------|------|------|----------------------|--------------|
 | metrics-server | -1 | `gitops/apps/metrics-server` | `kube-system` | Helm |
-| karpenter | 0 | `gitops/apps/karpenter` | `karpenter` | Helm + manifests |
+| karpenter | 0 | `gitops/apps/karpenter` | `karpenter` | Helm chart + CRDs |
+| karpenter-provisioner | 1 | `gitops/apps/karpenter-provisioner` | `karpenter` | EC2NodeClass + NodePools |
 | cilium | 1 | `gitops/apps/cilium` | `kube-system` | Helm + Hubble Ingress |
 | kyverno | 2 | `gitops/apps/kyverno` | `kyverno` | Helm |
 | kyverno-policies | 2 | `gitops/policies` | cluster-scoped | Kustomize |

@@ -89,16 +89,17 @@ In the UI, use **Sync** (not Refresh only). Respect sync waves so dependencies e
 | — | *(Terraform)* | — | ACM cert, AWS LBC, external-dns, **Argo CD Ingress** already running |
 | 1 | **platform-root** | — | Optional; child apps already registered by Terraform |
 | 2 | metrics-server | -1 | Metrics API |
-| 3 | karpenter | 0 | Node autoscaling |
-| 4 | cilium | 1 | Full Cilium/Hubble (upgrades bootstrap chart) |
-| 5 | kyverno | 2 | Admission policies |
-| 6 | kyverno-policies | 2 | Enforce policies |
-| 7 | falco | 2 | Runtime security |
-| 8 | istio-base | 3 | Istio CRDs |
-| 9 | istiod | 3 | Istio control plane |
-| 10 | fluentd | 4 | Logs |
-| 11 | kube-prometheus-stack | 4 | Grafana Ingress → external-dns creates record |
-| 12 | jaeger | 4 | Jaeger Ingress → external-dns creates record |
+| 3 | karpenter | 0 | Controller + CRDs (Helm only) |
+| 4 | karpenter-provisioner | 1 | EC2NodeClass + NodePools (after CRDs exist) |
+| 5 | cilium | 1 | Full Cilium/Hubble (upgrades bootstrap chart) |
+| 6 | kyverno | 2 | Admission policies |
+| 7 | kyverno-policies | 2 | Enforce policies |
+| 8 | falco | 2 | Runtime security |
+| 9 | istio-base | 3 | Istio CRDs |
+| 10 | istiod | 3 | Istio control plane |
+| 11 | fluentd | 4 | Logs |
+| 12 | kube-prometheus-stack | 4 | Grafana Ingress → external-dns creates record |
+| 13 | jaeger | 4 | Jaeger Ingress → external-dns creates record |
 
 **Tip:** After step 1, filter Applications by name. Sync **OutOfSync** apps in wave order. Use **Sync → Synchronize** with defaults; enable **Prune** only when you intend to delete removed resources.
 
@@ -119,6 +120,7 @@ argocd login localhost:8080 --username admin --password <from-secret> --insecure
 argocd app sync platform-root
 argocd app sync metrics-server
 argocd app sync karpenter
+argocd app sync karpenter-provisioner
 # ... etc.
 ```
 

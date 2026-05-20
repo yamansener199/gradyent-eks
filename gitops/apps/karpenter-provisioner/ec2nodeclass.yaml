@@ -2,8 +2,6 @@ apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
 metadata:
   name: default
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   role: gradyent-prod-karpenter-node
   amiSelectorTerms:

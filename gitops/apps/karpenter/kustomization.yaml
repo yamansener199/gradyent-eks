@@ -11,8 +11,3 @@ helmCharts:
     namespace: karpenter
     valuesFile: values.yaml
     includeCRDs: true
-
-resources:
-  - manifests/ec2nodeclass.yaml
-  - manifests/nodepool-spot.yaml
-  - manifests/nodepool-ondemand.yaml

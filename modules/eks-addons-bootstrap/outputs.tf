@@ -19,6 +19,7 @@ output "platform_applications" {
   value = [
     "metrics-server",
     "karpenter",
+    "karpenter-provisioner",
     "cilium",
     "kyverno",
     "kyverno-policies",

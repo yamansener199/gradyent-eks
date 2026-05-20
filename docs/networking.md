@@ -182,7 +182,7 @@ Service mesh policy and mTLS between apps are out of scope until application wor
 
 ## Karpenter node networking
 
-Karpenter provisions EC2 instances into **private subnets** tagged `karpenter.sh/discovery=gradyent-prod`. Node security groups carry the same discovery tag. See [`gitops/apps/karpenter/manifests/ec2nodeclass.yaml`](../gitops/apps/karpenter/manifests/ec2nodeclass.yaml).
+Karpenter provisions EC2 instances into **private subnets** tagged `karpenter.sh/discovery=gradyent-prod`. Node security groups carry the same discovery tag. See [`gitops/apps/karpenter-provisioner/ec2nodeclass.yaml`](../gitops/apps/karpenter-provisioner/ec2nodeclass.yaml).
 
 - **AMI:** `al2023@latest`
 - **IMDSv2:** required (`httpTokens: required`)
