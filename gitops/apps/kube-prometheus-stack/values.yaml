@@ -1,3 +1,7 @@
+# CRDs are installed by gitops/apps/kube-prometheus-stack-crds (Argo sync wave 3).
+crds:
+  enabled: false
+
 # EKS-managed control plane — do not scrape empty endpoints.
 kubeControllerManager:
   enabled: false

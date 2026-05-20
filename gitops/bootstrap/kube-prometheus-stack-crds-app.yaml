@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kube-prometheus-stack
+  name: kube-prometheus-stack-crds
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/sync-wave: "3"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -12,7 +12,7 @@ spec:
   sources:
     - repoURL: https://github.com/gradyent/gradyent.ai.git
       targetRevision: main
-      path: gitops/apps/kube-prometheus-stack
+      path: gitops/apps/kube-prometheus-stack-crds
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
@@ -25,11 +25,3 @@ spec:
       kind: CustomResourceDefinition
       jqPathExpressions:
         - .status
-    - group: admissionregistration.k8s.io
-      kind: ValidatingWebhookConfiguration
-      jqPathExpressions:
-        - .webhooks[]?.clientConfig.caBundle
-    - group: admissionregistration.k8s.io
-      kind: MutatingWebhookConfiguration
-      jqPathExpressions:
-        - .webhooks[]?.clientConfig.caBundle
