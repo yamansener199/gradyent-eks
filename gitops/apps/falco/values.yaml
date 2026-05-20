@@ -79,15 +79,10 @@ customRules:
       tags: [filesystem, mitre_credential_access]
 
     - rule: Cryptominer Outbound Connection
-      desc: Outbound connection to ports or domains associated with mining pools
+      desc: Outbound connection to ports associated with mining pools
       condition: >
         outbound and container and
-        (fd.rport in (miner_pool_ports) or
-         fd.sip.name contains "mining" or fd.sip.name contains "minergate" or
-         fd.sip.name contains "nanopool" or fd.sip.name contains "f2pool" or
-         fd.sip.name contains "antpool" or fd.sip.name contains "ethermine" or
-         fd.sip.name contains "nicehash" or fd.sip.name contains "stratum" or
-         fd.sip.name contains "xmr" or fd.sip.name contains "monero")
+        fd.rport in (miner_pool_ports)
       output: >
         Potential cryptominer network activity
         (user=%user.name container=%container.name connection=%fd.name proc=%proc.cmdline)
