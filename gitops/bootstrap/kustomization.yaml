@@ -9,17 +9,15 @@ configMapGenerator:
       - repo.env
 
 resources:
+  # cert-manager, aws-lbc, external-dns, argocd-ingress: installed by Terraform before Argo CD.
   - metrics-server-app.yaml
   - karpenter-app.yaml
-  - cert-manager-app.yaml
   - cilium-app.yaml
   - kyverno-app.yaml
   - kyverno-policies-app.yaml
   - falco-app.yaml
   - istio-base-app.yaml
   - istiod-app.yaml
-  - aws-load-balancer-controller-app.yaml
-  - external-dns-app.yaml
   - fluentd-app.yaml
   - kube-prometheus-stack-app.yaml
   - jaeger-app.yaml
@@ -31,12 +29,6 @@ patches:
       - op: replace
         path: /spec/project
         value: platform
-  # Manual sync from Argo CD UI — no automated prune/selfHeal on platform apps.
-  - target:
-      kind: Application
-    patch: |-
-      - op: remove
-        path: /spec/syncPolicy/automated
 
 replacements:
   - source:

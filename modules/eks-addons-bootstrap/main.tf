@@ -40,8 +40,13 @@ resource "helm_release" "argocd" {
         service = {
           type = "ClusterIP"
         }
-        # Ingress and TLS are owned by GitOps after cert-manager (wave 1) and LBC (wave 2).
-        ingress = {
+        ingress = var.bootstrap_ingress_dns_before_argocd ? {
+          enabled          = true
+          ingressClassName = "alb"
+          hostname         = "argocd.${var.platform_domain}"
+          annotations      = local.alb_ingress_annotations
+          tls              = true
+        } : {
           enabled = false
         }
         certificate = {
@@ -110,7 +115,8 @@ resource "helm_release" "argocd" {
           url = "https://argocd.${var.platform_domain}"
         }
         params = {
-          "server.insecure" = false
+          # TLS terminates at ALB; server speaks HTTP to the load balancer.
+          "server.insecure" = true
         }
         credentialTemplates = var.gitops_repo_password != null ? {
           gradyent-platform-creds = {
@@ -147,11 +153,16 @@ resource "helm_release" "argocd" {
     }),
   ]
 
-  depends_on = [
-    helm_release.cilium_bootstrap,
-    null_resource.remove_vpc_cni_and_kube_proxy,
-    kubernetes_namespace_v1.argocd,
-  ]
+  depends_on = concat(
+    [
+      helm_release.cilium_bootstrap,
+      null_resource.remove_vpc_cni_and_kube_proxy,
+      kubernetes_namespace_v1.argocd,
+    ],
+    var.bootstrap_ingress_dns_before_argocd ? [
+      helm_release.external_dns[0],
+    ] : [],
+  )
 }
 
 resource "kubernetes_config_map_v1" "irsa_roles" {

@@ -15,11 +15,10 @@ output "platform_bootstrap_enabled" {
 }
 
 output "platform_applications" {
-  description = "Argo CD Applications managed under the platform AppProject"
+  description = "Argo CD Applications registered for manual sync (ingress/DNS stack excluded when installed by Terraform)"
   value = [
     "metrics-server",
     "karpenter",
-    "cert-manager",
     "cilium",
     "kyverno",
     "kyverno-policies",
@@ -30,4 +29,13 @@ output "platform_applications" {
     "kube-prometheus-stack",
     "jaeger",
   ]
+}
+
+output "argocd_url" {
+  description = "Public Argo CD URL when bootstrap_ingress_dns_before_argocd is true"
+  value       = var.bootstrap_ingress_dns_before_argocd ? "https://argocd.${var.platform_domain}" : null
+}
+
+output "ingress_dns_bootstrapped_by_terraform" {
+  value = var.bootstrap_ingress_dns_before_argocd
 }

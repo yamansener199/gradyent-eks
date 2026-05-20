@@ -21,20 +21,6 @@ spec:
 patch_irsa_helm_app karpenter "${KARPENTER_CONTROLLER_ROLE_ARN:-}"
 patch_irsa_helm_app fluentd "${FLUENTD_ROLE_ARN:-}"
 patch_irsa_helm_app falco "${FALCO_ROLE_ARN:-}"
-patch_irsa_helm_app aws-load-balancer-controller "${AWS_LBC_ROLE_ARN:-}"
-patch_irsa_helm_app external-dns "${EXTERNAL_DNS_ROLE_ARN:-}"
-
-if [[ -n "${AWS_LBC_ROLE_ARN:-}" && -n "${VPC_ID:-}" ]]; then
-  kubectl patch application aws-load-balancer-controller -n "${ARGOCD_NAMESPACE}" --type merge --patch "
-spec:
-  sources:
-    - helm:
-        parameters:
-          - name: serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn
-            value: ${AWS_LBC_ROLE_ARN}
-          - name: vpcId
-            value: ${VPC_ID}
-" 2>/dev/null || true
-fi
+# LBC and external-dns are installed by Terraform when bootstrap_ingress_dns_before_argocd=true.
 
 echo "IRSA parameters patched on Helm Applications (sync from UI when ready)."

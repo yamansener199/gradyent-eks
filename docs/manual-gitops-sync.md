@@ -14,11 +14,13 @@ Automated sync (`prune` / `selfHeal`) is **disabled** on every platform Applicat
 | `eks-kms` | KMS for secrets |
 | `eks-cluster` | EKS `gradyent-prod`, bootstrap nodes, IRSA IAM roles |
 | `bastion` | Optional SSM host for private API |
-| `eks-addons-bootstrap` | Cilium (bootstrap) → Argo CD → `AppProject/platform` → `platform-root` Application |
+| `eks-addons-bootstrap` | Cilium → **cert-manager → AWS LBC → external-dns** → Argo CD (with Ingress) → register GitOps apps |
+
+**Ingress/DNS before Argo CD:** Terraform installs cert-manager, the AWS Load Balancer Controller, and external-dns **before** the Argo CD Helm release. When Argo CD’s Ingress is created, **external-dns** can immediately create `argocd.<platform_domain>` in Route 53. The same applies to any later Ingress you deploy via GitOps sync (Grafana, Jaeger, etc.) — external-dns is already running.
 
 Terraform does **not** run `bootstrap-platform.sh` (no wait-for-Synced loop).
 
-It **does** `kubectl apply` `gitops/bootstrap/` so every platform Application appears in the UI as **OutOfSync** (ready for you to sync).
+It **does** `kubectl apply` `gitops/bootstrap/` so platform Applications appear in the UI as **OutOfSync** (cert-manager / LBC / external-dns are **not** duplicated there; Terraform owns them).
 
 ---
 
@@ -62,9 +64,11 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath='{.data.password}' | base64 -d && echo
 ```
 
-### Option B — Ingress (after LBC + cert-manager + DNS)
+### Option B — Public DNS (default after Terraform)
 
-https://argocd.dummy.cool (requires syncing ingress-related apps first).
+https://argocd.dummy.cool — created automatically if the Route 53 hosted zone for `platform_domain` exists in the account.
+
+Prerequisites: hosted zone for `dummy.cool` (or your `platform_domain`), ACM not required (Let's Encrypt via cert-manager).
 
 ---
 
@@ -72,23 +76,21 @@ https://argocd.dummy.cool (requires syncing ingress-related apps first).
 
 In the UI, use **Sync** (not Refresh only). Respect sync waves so dependencies exist.
 
-| Step | Application | Wave | Why first |
-|------|-------------|------|-----------|
-| 1 | **platform-root** | — | Optional if you use app-of-apps; child apps are already registered by Terraform |
+| Step | Application | Wave | Notes |
+|------|-------------|------|-------|
+| — | *(Terraform)* | — | cert-manager, AWS LBC, external-dns, **Argo CD Ingress** already running |
+| 1 | **platform-root** | — | Optional; child apps already registered by Terraform |
 | 2 | metrics-server | -1 | Metrics API |
 | 3 | karpenter | 0 | Node autoscaling |
-| 4 | cert-manager | 1 | TLS for ingresses |
-| 5 | cilium | 1 | Full Cilium/Hubble (upgrades bootstrap chart) |
-| 6 | aws-load-balancer-controller | 2 | ALBs for Ingress |
-| 7 | external-dns | 2 | Route 53 records |
-| 8 | kyverno | 2 | Admission policies |
-| 9 | kyverno-policies | 2 | Enforce policies |
-| 10 | falco | 2 | Runtime security |
-| 11 | istio-base | 3 | Istio CRDs |
-| 12 | istiod | 3 | Istio control plane |
-| 13 | fluentd | 4 | Logs |
-| 14 | kube-prometheus-stack | 4 | Prometheus/Grafana |
-| 15 | jaeger | 4 | Tracing |
+| 4 | cilium | 1 | Full Cilium/Hubble (upgrades bootstrap chart) |
+| 5 | kyverno | 2 | Admission policies |
+| 6 | kyverno-policies | 2 | Enforce policies |
+| 7 | falco | 2 | Runtime security |
+| 8 | istio-base | 3 | Istio CRDs |
+| 9 | istiod | 3 | Istio control plane |
+| 10 | fluentd | 4 | Logs |
+| 11 | kube-prometheus-stack | 4 | Grafana Ingress → external-dns creates record |
+| 12 | jaeger | 4 | Jaeger Ingress → external-dns creates record |
 
 **Tip:** After step 1, filter Applications by name. Sync **OutOfSync** apps in wave order. Use **Sync → Synchronize** with defaults; enable **Prune** only when you intend to delete removed resources.
 
@@ -96,7 +98,7 @@ In the UI, use **Sync** (not Refresh only). Respect sync waves so dependencies e
 
 Terraform sets `patch_irsa_on_apply = true` to patch Helm parameters on:
 
-- karpenter, fluentd, falco, aws-load-balancer-controller, external-dns
+- karpenter, fluentd, falco
 
 This runs after `platform-root` creates Application objects. If you sync **before** `eks-addons-bootstrap` finishes, patch IRSA from the UI: Application → **Parameters** → `serviceAccount.annotations.eks.amazonaws.com/role-arn`.
 

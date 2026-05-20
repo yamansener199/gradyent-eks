@@ -103,6 +103,33 @@ variable "platform_domain" {
   description = "Public DNS zone for platform services (e.g. grafana.<domain>, argocd.<domain>)"
 }
 
+variable "bootstrap_ingress_dns_before_argocd" {
+  type        = bool
+  default     = true
+  description = "Install cert-manager, AWS LBC, and external-dns via Terraform before Argo CD so Ingress DNS records are created automatically."
+}
+
+variable "cert_manager_chart_version" {
+  type    = string
+  default = "v1.17.2"
+}
+
+variable "aws_lbc_chart_version" {
+  type    = string
+  default = "1.11.0"
+}
+
+variable "external_dns_chart_version" {
+  type    = string
+  default = "1.15.0"
+}
+
+variable "acme_email" {
+  type        = string
+  default     = "platform@dummy.cool"
+  description = "Let's Encrypt registration email for ClusterIssuer"
+}
+
 variable "tags" {
   type    = map(string)
   default = {}
