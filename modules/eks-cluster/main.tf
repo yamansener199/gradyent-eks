@@ -39,6 +39,24 @@ module "eks" {
       most_recent                 = true
       resolve_conflicts_on_update = "OVERWRITE"
       service_account_role_arn    = module.ebs_csi_irsa.iam_role_arn
+      # Bootstrap nodes are small and overloaded; CSI controller health probes time out there.
+      configuration_values = jsonencode({
+        controller = {
+          affinity = {
+            nodeAffinity = {
+              requiredDuringSchedulingIgnoredDuringExecution = {
+                nodeSelectorTerms = [{
+                  matchExpressions = [{
+                    key      = "role"
+                    operator = "NotIn"
+                    values   = ["bootstrap"]
+                  }]
+                }]
+              }
+            }
+          }
+        }
+      })
     }
   }
 
