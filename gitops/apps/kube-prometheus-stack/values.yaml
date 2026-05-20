@@ -5,6 +5,10 @@ crds:
     enabled: true
     forceConflicts: true
 
+# Schedule monitoring workloads on Karpenter large+ workers (not bootstrap nodes).
+largePlusNodeSelector: &largePlusNodeSelector
+  node.gradyent.io/size-tier: large-plus
+
 # EKS-managed control plane — do not scrape empty endpoints.
 kubeControllerManager:
   enabled: false
@@ -15,6 +19,7 @@ kubeEtcd:
 
 grafana:
   enabled: true
+  nodeSelector: *largePlusNodeSelector
   defaultDashboardsEnabled: true
   defaultDashboardsTimezone: UTC
 
@@ -65,6 +70,7 @@ grafana:
 
 prometheus:
   prometheusSpec:
+    nodeSelector: *largePlusNodeSelector
     retention: 15d
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
@@ -75,6 +81,7 @@ prometheus:
 
 alertmanager:
   enabled: true
+  nodeSelector: *largePlusNodeSelector
   ingress:
     enabled: true
     ingressClassName: alb
@@ -89,6 +96,7 @@ alertmanager:
     hosts:
       - alertmanager.dummy.cool
   alertmanagerSpec:
+    nodeSelector: *largePlusNodeSelector
     secrets:
       - alertmanager-notification-secrets
   config:
@@ -138,6 +146,12 @@ alertmanager:
         target_matchers:
           - severity =~ warning|info
         equal: ["alertname", "namespace"]
+
+prometheusOperator:
+  nodeSelector: *largePlusNodeSelector
+
+kubeStateMetrics:
+  nodeSelector: *largePlusNodeSelector
 
 defaultRules:
   create: true

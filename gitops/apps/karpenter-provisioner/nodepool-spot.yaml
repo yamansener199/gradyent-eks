@@ -7,6 +7,7 @@ spec:
     metadata:
       labels:
         capacity-type: spot
+        node.gradyent.io/size-tier: large-plus
     spec:
       expireAfter: 720h
       nodeClassRef:
@@ -29,10 +30,10 @@ spec:
         - key: karpenter.k8s.aws/instance-generation
           operator: Gt
           values: ["5"]
-        # medium instances (e.g. c7a.medium) cap at 8 pods — too few for platform DaemonSets.
+        # large+ only — medium instances (e.g. c7a.medium) cap at 8 pods on EKS.
         - key: karpenter.k8s.aws/instance-size
-          operator: NotIn
-          values: [nano, micro, small, medium]
+          operator: In
+          values: [large, xlarge, 2xlarge, 4xlarge, 8xlarge]
       taints: []
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
