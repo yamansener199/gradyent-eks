@@ -40,28 +40,12 @@ resource "helm_release" "argocd" {
         service = {
           type = "ClusterIP"
         }
+        # Ingress and TLS are owned by GitOps after cert-manager (wave 1) and LBC (wave 2).
         ingress = {
-          enabled          = true
-          ingressClassName = "alb"
-          hostname         = "argocd.${var.platform_domain}"
-          annotations = {
-            "cert-manager.io/cluster-issuer"              = "letsencrypt-prod"
-            "alb.ingress.kubernetes.io/scheme"              = "internet-facing"
-            "alb.ingress.kubernetes.io/target-type"         = "ip"
-            "alb.ingress.kubernetes.io/listen-ports"        = "[{\"HTTPS\":443},{\"HTTP\":80}]"
-            "alb.ingress.kubernetes.io/ssl-redirect"        = "443"
-            "alb.ingress.kubernetes.io/backend-protocol"    = "HTTPS"
-          }
-          tls = true
+          enabled = false
         }
         certificate = {
-          enabled = true
-          domain  = "argocd.${var.platform_domain}"
-          issuer = {
-            group = "cert-manager.io"
-            kind  = "ClusterIssuer"
-            name  = "letsencrypt-prod"
-          }
+          enabled = false
         }
         tolerations = [
           {
@@ -138,16 +122,14 @@ resource "helm_release" "argocd" {
         repositories = merge(
           {
             gradyent-platform = {
-              url      = var.gitops_repo_url
-              type     = "git"
-              insecure = false
+              url  = var.gitops_repo_url
+              type = "git"
             }
           },
           var.gitops_repo_password != null ? {
             gradyent-platform = {
               url                = var.gitops_repo_url
               type               = "git"
-              insecure           = false
               credentialTemplate = "gradyent-platform-creds"
             }
           } : {},
@@ -167,6 +149,7 @@ resource "helm_release" "argocd" {
 
   depends_on = [
     helm_release.cilium_bootstrap,
+    null_resource.remove_vpc_cni_and_kube_proxy,
     kubernetes_namespace_v1.argocd,
   ]
 }

@@ -4,7 +4,7 @@ resource "null_resource" "argocd_pre_destroy" {
     helm_release.argocd,
     null_resource.platform_root_app,
     null_resource.platform_bootstrap,
-    kubernetes_manifest.platform_appproject,
+    null_resource.platform_appproject,
     kubernetes_config_map_v1.irsa_roles,
   ]
 

@@ -52,7 +52,9 @@ inputs = {
   gitops_repo_url                    = include.env.locals.gitops_repo_url
   gitops_revision                    = include.env.locals.gitops_revision
   gitops_repo_root                   = dirname(find_in_parent_folders("root.hcl"))
-  bootstrap_platform_on_apply        = true
-  require_git_repo_access            = true
-  platform_sync_timeout_seconds      = 2400
+  # Manual sync in Argo CD UI — apps registered as OutOfSync, no bootstrap wait loop.
+  bootstrap_platform_on_apply      = false
+  register_platform_applications   = true
+  patch_irsa_on_apply              = true
+  require_git_repo_access          = true
 }

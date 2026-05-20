@@ -68,7 +68,7 @@ resource "aws_iam_instance_profile" "bastion" {
 
 resource "aws_security_group" "bastion" {
   name_prefix = "${var.cluster_name}-bastion-"
-  description = "SSM bastion — egress only (no SSH)"
+  description = "SSM bastion egress only no SSH"
   vpc_id      = var.vpc_id
 
   egress {

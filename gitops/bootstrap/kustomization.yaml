@@ -31,6 +31,12 @@ patches:
       - op: replace
         path: /spec/project
         value: platform
+  # Manual sync from Argo CD UI — no automated prune/selfHeal on platform apps.
+  - target:
+      kind: Application
+    patch: |-
+      - op: remove
+        path: /spec/syncPolicy/automated
 
 replacements:
   - source:

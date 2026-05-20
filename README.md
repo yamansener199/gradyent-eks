@@ -13,6 +13,7 @@ AWS EKS in `eu-central-1` with **Terragrunt** for infrastructure and **Argo CD**
 | **[Components](docs/components.md)** | Every Argo CD app, sync waves, namespaces |
 | **[Runbooks](docs/runbooks/)** | Alert response playbooks |
 | **[Cluster test](docs/cluster-test.md)** | Post-deploy smoke checklist + `hack/cluster-smoke-test.sh` |
+| **[Manual Argo CD sync](docs/manual-gitops-sync.md)** | VPC/EKS deploy, then sync platform apps yourself in the UI |
 
 ## Prerequisites
 

@@ -59,8 +59,20 @@ variable "gitops_repo_root" {
 
 variable "bootstrap_platform_on_apply" {
   type        = bool
+  default     = false
+  description = "When true, run bootstrap-platform.sh to auto-sync all platform apps. Default false: manual sync in Argo CD UI."
+}
+
+variable "patch_irsa_on_apply" {
+  type        = bool
   default     = true
-  description = "When true, run post-apply bootstrap to sync all platform Argo CD Applications from Git."
+  description = "When true, patch IRSA role ARNs onto Helm Applications after Application CRs are registered."
+}
+
+variable "register_platform_applications" {
+  type        = bool
+  default     = true
+  description = "When true, kubectl apply gitops/bootstrap so all Applications appear in Argo CD (OutOfSync) without auto-sync."
 }
 
 variable "platform_sync_timeout_seconds" {

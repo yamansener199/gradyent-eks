@@ -11,7 +11,7 @@ locals {
       finalizers = ["resources-finalizer.argocd.argoproj.io"]
     }
     spec = {
-      project = "default"
+      project = "platform"
       source = {
         repoURL        = var.gitops_repo_url
         targetRevision = var.gitops_revision
@@ -21,23 +21,11 @@ locals {
         server    = "https://kubernetes.default.svc"
         namespace = kubernetes_namespace_v1.argocd.metadata[0].name
       }
+      # Manual sync: operator syncs platform-root from the UI, then child apps by wave.
       syncPolicy = {
-        automated = {
-          prune      = false
-          selfHeal   = true
-          allowEmpty = false
-        }
         syncOptions = [
           "CreateNamespace=true",
         ]
-        retry = {
-          limit     = 5
-          backoff = {
-            duration    = "30s"
-            factor      = 2
-            maxDuration = "5m"
-          }
-        }
       }
     }
   }
@@ -54,7 +42,7 @@ resource "null_resource" "platform_root_app" {
   depends_on = [
     time_sleep.wait_argocd_crds,
     kubernetes_config_map_v1.irsa_roles,
-    kubernetes_manifest.platform_appproject,
+    null_resource.platform_appproject,
   ]
 
   triggers = {

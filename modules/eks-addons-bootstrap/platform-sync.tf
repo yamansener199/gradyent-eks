@@ -7,7 +7,7 @@ resource "null_resource" "platform_bootstrap" {
     null_resource.platform_root_app,
     helm_release.argocd,
     kubernetes_config_map_v1.irsa_roles,
-    kubernetes_manifest.platform_appproject,
+    null_resource.platform_appproject,
   ]
 
   triggers = {
