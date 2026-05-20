@@ -88,7 +88,7 @@ flowchart TB
 |-------|------|------|
 | **Cloud foundation** | Terragrunt | VPC, KMS, EKS cluster, bootstrap node group, EKS add-ons (CoreDNS, EBS CSI), Karpenter **AWS** primitives (node IAM, SQS), **IRSA** roles, SSM bastion |
 | **Control plane install** | Terraform (`eks-addons-bootstrap`) | Cilium bootstrap Helm, Argo CD Helm, `AppProject/platform`, `platform-root`, IRSA ConfigMap, optional platform bootstrap waiter |
-| **CNCF platform** | Argo CD | Karpenter controller, Cilium (full config), cert-manager, LBC, external-dns, Kyverno, Falco, Istio, Prometheus stack, Jaeger, Fluentd |
+| **CNCF platform** | Argo CD | Karpenter controller, Cilium (full config), ACM + LBC, external-dns, Kyverno, Falco, Istio, Prometheus stack, Jaeger, Fluentd |
 
 **Rule of thumb:** If it is an AWS API resource or the cluster/API itself → Terraform. If it is a Kubernetes workload/chart → Argo CD (after Argo exists).
 
@@ -185,7 +185,7 @@ Lower waves run first. Within the same wave, order is not guaranteed.
 |------|----------------|
 | **-1** | metrics-server |
 | **0** | karpenter |
-| **1** | cert-manager, cilium |
+| **1** | cilium |
 | **2** | aws-load-balancer-controller, external-dns, kyverno, kyverno-policies, falco |
 | **3** | istio-base, istiod |
 | **4** | fluentd, kube-prometheus-stack, jaeger |
@@ -207,7 +207,7 @@ Public hostname zone: **`dummy.cool`** (`platform_domain`).
 | https://hubble.dummy.cool | Cilium Hubble UI |
 
 - **AWS Load Balancer Controller** — `IngressClass` `alb`, internet-facing ALBs.
-- **cert-manager** — `ClusterIssuer` `letsencrypt-prod`, HTTP-01 via ALB.
+- **ACM** — Wildcard cert for `platform_domain`; attached to public ALB Ingresses via `alb.ingress.kubernetes.io/certificate-arn`.
 - **external-dns** — Route 53 `A`/`AAAA` (alias) records, `policy: sync`.
 
 Details: [networking.md](networking.md).

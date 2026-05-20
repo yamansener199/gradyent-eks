@@ -46,42 +46,8 @@ resource "helm_release" "cilium_bootstrap" {
   timeout = 900
 
   values = [
-    yamlencode({
-      cni = {
-        exclusive = true
-      }
-      eni = {
-        enabled = true
-      }
-      ipam = {
-        mode = "eni"
-      }
-      routingMode            = "native"
-      kubeProxyReplacement   = true
-      k8sServiceHost         = local.k8s_service_host
-      k8sServicePort         = "443"
-      operator = {
-        tolerations = [
-          {
-            key      = "CriticalAddonsOnly"
-            operator = "Exists"
-            effect   = "NoSchedule"
-          },
-        ]
-      }
-      tolerations = [
-        {
-          key      = "CriticalAddonsOnly"
-          operator = "Exists"
-          effect   = "NoSchedule"
-        },
-      ]
-    }),
+    yamlencode(local.cilium_platform_values),
   ]
 
   depends_on = [kubernetes_config_map_v1.cluster_info]
-
-  lifecycle {
-    ignore_changes = [values, version]
-  }
 }

@@ -42,6 +42,7 @@ dependency "eks" {
 }
 
 inputs = {
+  vpc_cidr                           = include.env.locals.vpc_cidr
   platform_domain                    = include.env.locals.platform_domain
   aws_region                         = include.region.locals.aws_region
   cluster_name                       = dependency.eks.outputs.cluster_name
@@ -58,5 +59,5 @@ inputs = {
   register_platform_applications      = true
   patch_irsa_on_apply                 = true
   require_git_repo_access             = true
-  acme_email                          = "platform@dummy.cool"
+  tags                                = include.env.locals.tags
 }

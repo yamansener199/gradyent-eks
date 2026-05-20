@@ -95,7 +95,6 @@ refresh_app platform-root
 APP_WAVES="$(cat <<'EOF'
 metrics-server
 karpenter
-cert-manager
 aws-load-balancer-controller
 external-dns
 cilium

@@ -1,0 +1,9 @@
+cluster_name                       = "test-cluster"
+cluster_endpoint                   = "https://mock.eks.eu-central-1.amazonaws.com"
+cluster_certificate_authority_data = "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t"
+cluster_version                    = "1.31"
+irsa_map                           = {}
+gitops_repo_url                    = "https://github.com/example/gradyent.ai"
+gitops_repo_root                   = "/tmp/gradyent"
+platform_domain                    = "example.com"
+vpc_cidr                           = "10.0.0.0/16"

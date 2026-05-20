@@ -112,7 +112,7 @@ kubectl get applications -n argocd
 kubectl get pods -A | grep -v Running | grep -v Completed
 ```
 
-Platform URLs (after external-dns + cert-manager): see [ARCHITECTURE.md#platform-dns-and-ingress](ARCHITECTURE.md#platform-dns-and-ingress).
+Platform URLs (after external-dns + ACM on ALB): see [ARCHITECTURE.md#platform-dns-and-ingress](ARCHITECTURE.md#platform-dns-and-ingress).
 
 ```bash
 kubectl get ingress -A

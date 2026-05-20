@@ -6,7 +6,7 @@ resource "null_resource" "remove_vpc_cni_and_kube_proxy" {
   triggers = {
     cluster_name = var.cluster_name
     aws_region   = var.aws_region
-    cilium_id    = helm_release.cilium_bootstrap.id
+    script_sha   = filesha256("${path.module}/legacy-networking-cleanup.tf")
   }
 
   provisioner "local-exec" {

@@ -11,7 +11,7 @@ flowchart TB
   subgraph Perimeter
     PrivateAPI[Private EKS API]
     SSM[SSM bastion no SSH]
-    ALB[TLS at ALB + cert-manager]
+    ALB[TLS at ALB + ACM]
   end
 
   subgraph Cluster

@@ -28,7 +28,7 @@ jobs:
 
       - name: Validate Helm-based apps (Kustomize + Helm)
         run: |
-          for app in kube-prometheus-stack aws-load-balancer-controller external-dns cert-manager cilium karpenter falco jaeger fluentd metrics-server; do
+          for app in kube-prometheus-stack aws-load-balancer-controller external-dns cilium karpenter falco jaeger fluentd metrics-server; do
             kubectl kustomize --enable-helm "gitops/apps/${app}" > /dev/null
           done
 

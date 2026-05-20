@@ -75,7 +75,6 @@ fi
 
 section "Platform controllers"
 checks=(
-  "cert-manager:cert-manager:app.kubernetes.io/instance=cert-manager"
   "kube-system:aws-load-balancer-controller:app.kubernetes.io/name=aws-load-balancer-controller"
   "kube-system:external-dns:app.kubernetes.io/name=external-dns"
   "kyverno:kyverno:app.kubernetes.io/instance=kyverno"

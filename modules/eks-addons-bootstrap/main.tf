@@ -40,14 +40,13 @@ resource "helm_release" "argocd" {
         service = {
           type = "ClusterIP"
         }
-        ingress = var.bootstrap_ingress_dns_before_argocd ? {
-          enabled          = true
+        ingress = {
+          enabled          = var.bootstrap_ingress_dns_before_argocd
           ingressClassName = "alb"
           hostname         = "argocd.${var.platform_domain}"
           annotations      = local.alb_ingress_annotations
-          tls              = true
-        } : {
-          enabled = false
+          # TLS terminates at ALB using ACM (alb.ingress.kubernetes.io/certificate-arn).
+          tls = false
         }
         certificate = {
           enabled = false
@@ -113,6 +112,8 @@ resource "helm_release" "argocd" {
       configs = {
         cm = {
           url = "https://argocd.${var.platform_domain}"
+          # gitops/apps/* use Kustomize helmCharts generators (same as gitops-ci.yml).
+          "kustomize.buildOptions" = "--enable-helm"
         }
         params = {
           # TLS terminates at ALB; server speaks HTTP to the load balancer.
@@ -153,16 +154,12 @@ resource "helm_release" "argocd" {
     }),
   ]
 
-  depends_on = concat(
-    [
-      helm_release.cilium_bootstrap,
-      null_resource.remove_vpc_cni_and_kube_proxy,
-      kubernetes_namespace_v1.argocd,
-    ],
-    var.bootstrap_ingress_dns_before_argocd ? [
-      helm_release.external_dns[0],
-    ] : [],
-  )
+  depends_on = [
+    helm_release.cilium_bootstrap,
+    null_resource.remove_vpc_cni_and_kube_proxy,
+    kubernetes_namespace_v1.argocd,
+    helm_release.external_dns,
+  ]
 }
 
 resource "kubernetes_config_map_v1" "irsa_roles" {
@@ -174,7 +171,10 @@ resource "kubernetes_config_map_v1" "irsa_roles" {
     }
   }
 
-  data = var.irsa_map
+  data = merge(
+    var.irsa_map,
+    local.platform_acm_certificate_arn != null ? { acm_certificate_arn = local.platform_acm_certificate_arn } : {},
+  )
 
   depends_on = [helm_release.argocd]
 }

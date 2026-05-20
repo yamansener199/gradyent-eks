@@ -14,13 +14,13 @@ Automated sync (`prune` / `selfHeal`) is **disabled** on every platform Applicat
 | `eks-kms` | KMS for secrets |
 | `eks-cluster` | EKS `gradyent-prod`, bootstrap nodes, IRSA IAM roles |
 | `bastion` | Optional SSM host for private API |
-| `eks-addons-bootstrap` | Cilium → **cert-manager → AWS LBC → external-dns** → Argo CD (with Ingress) → register GitOps apps |
+| `eks-addons-bootstrap` | Cilium → **ACM (DNS validation) → AWS LBC → external-dns** → Argo CD (with Ingress) → register GitOps apps |
 
-**Ingress/DNS before Argo CD:** Terraform installs cert-manager, the AWS Load Balancer Controller, and external-dns **before** the Argo CD Helm release. When Argo CD’s Ingress is created, **external-dns** can immediately create `argocd.<platform_domain>` in Route 53. The same applies to any later Ingress you deploy via GitOps sync (Grafana, Jaeger, etc.) — external-dns is already running.
+**Ingress/DNS before Argo CD:** Terraform requests an **ACM** certificate for `platform_domain` and `*.platform_domain`, installs the AWS Load Balancer Controller and external-dns, then Argo CD with an ALB Ingress (`alb.ingress.kubernetes.io/certificate-arn`). **external-dns** creates `argocd.<platform_domain>` in Route 53 as soon as the Ingress exists.
 
 Terraform does **not** run `bootstrap-platform.sh` (no wait-for-Synced loop).
 
-It **does** `kubectl apply` `gitops/bootstrap/` so platform Applications appear in the UI as **OutOfSync** (cert-manager / LBC / external-dns are **not** duplicated there; Terraform owns them).
+It **does** `kubectl apply` `gitops/bootstrap/` so platform Applications appear in the UI as **OutOfSync** (ACM / LBC / external-dns are **not** duplicated there; Terraform owns them).
 
 ---
 
@@ -68,7 +68,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 
 https://argocd.dummy.cool — created automatically if the Route 53 hosted zone for `platform_domain` exists in the account.
 
-Prerequisites: hosted zone for `dummy.cool` (or your `platform_domain`), ACM not required (Let's Encrypt via cert-manager).
+Prerequisites: public Route 53 hosted zone for `dummy.cool` (or your `platform_domain`). Terraform creates and validates the ACM certificate via DNS.
 
 ---
 
@@ -78,7 +78,7 @@ In the UI, use **Sync** (not Refresh only). Respect sync waves so dependencies e
 
 | Step | Application | Wave | Notes |
 |------|-------------|------|-------|
-| — | *(Terraform)* | — | cert-manager, AWS LBC, external-dns, **Argo CD Ingress** already running |
+| — | *(Terraform)* | — | ACM cert, AWS LBC, external-dns, **Argo CD Ingress** already running |
 | 1 | **platform-root** | — | Optional; child apps already registered by Terraform |
 | 2 | metrics-server | -1 | Metrics API |
 | 3 | karpenter | 0 | Node autoscaling |

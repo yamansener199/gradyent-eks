@@ -6,11 +6,27 @@ cni:
 eni:
   enabled: true
   awsReleaseExcessIPs: true
+  awsEnablePrefixDelegation: true
 
 ipam:
   mode: eni
 
 routingMode: native
+ipv4NativeRoutingCIDR: 10.0.0.0/16
+enableIPv4Masquerade: true
+# Incompatible with bpf.masquerade on Cilium 1.17.x (agent fatal on startup).
+enableMasqueradeRouteSource: false
+
+bpf:
+  masquerade: true
+
+ipMasqAgent:
+  enabled: true
+  config:
+    nonMasqueradeCIDRs:
+      - 10.0.0.0/16
+    masqLinkLocal: false
+
 kubeProxyReplacement: true
 k8sServiceHost: auto
 k8sServicePort: auto
@@ -19,6 +35,7 @@ prometheus:
   enabled: true
   serviceMonitor:
     enabled: true
+    trustCRDsExist: true
     labels:
       release: kube-prometheus-stack
 
@@ -41,6 +58,7 @@ hubble:
       - http
     serviceMonitor:
       enabled: true
+      trustCRDsExist: true
       labels:
         release: kube-prometheus-stack
 

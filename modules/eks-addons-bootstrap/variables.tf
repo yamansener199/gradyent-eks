@@ -7,6 +7,12 @@ variable "cluster_name" {
   type = string
 }
 
+variable "vpc_cidr" {
+  type        = string
+  description = "VPC CIDR for Cilium ipv4NativeRoutingCIDR (pod egress masquerade on ENI nodes)"
+  default     = "10.0.0.0/16"
+}
+
 variable "cluster_endpoint" {
   type = string
 }
@@ -106,12 +112,19 @@ variable "platform_domain" {
 variable "bootstrap_ingress_dns_before_argocd" {
   type        = bool
   default     = true
-  description = "Install cert-manager, AWS LBC, and external-dns via Terraform before Argo CD so Ingress DNS records are created automatically."
+  description = "When true, enable Argo CD ALB Ingress (ACM, AWS LBC, and external-dns are installed before Argo CD by Terraform)."
 }
 
-variable "cert_manager_chart_version" {
-  type    = string
-  default = "v1.17.2"
+variable "route53_zone_id" {
+  type        = string
+  default     = null
+  description = "Route 53 hosted zone ID for platform_domain. If null, the public zone is looked up by name."
+}
+
+variable "acm_certificate_arn" {
+  type        = string
+  default     = null
+  description = "Existing ACM certificate ARN for platform_domain / *.<domain>. If null, Terraform requests and validates a new cert."
 }
 
 variable "aws_lbc_chart_version" {
@@ -122,12 +135,6 @@ variable "aws_lbc_chart_version" {
 variable "external_dns_chart_version" {
   type    = string
   default = "1.15.0"
-}
-
-variable "acme_email" {
-  type        = string
-  default     = "platform@dummy.cool"
-  description = "Let's Encrypt registration email for ClusterIssuer"
 }
 
 variable "tags" {

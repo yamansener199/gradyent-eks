@@ -29,7 +29,7 @@ Argo CD clones that Git repo to deploy **platform components only** under [`gito
 | In scope (`gitops/`) | Out of scope (not in this repo) |
 |----------------------|----------------------------------|
 | Karpenter, Cilium, Istio control plane | Frontend / backend / API services |
-| Kyverno, Falco, cert-manager, metrics-server | Business application Helm charts |
+| Kyverno, Falco, metrics-server | Business application Helm charts |
 | Prometheus, Grafana, Jaeger, Fluentd | Demo or sample microservices |
 
 To change a **platform** chart version or values: edit [`gitops/apps/<component>/`](gitops/apps/), push Git — Argo CD reconciles. No Terraform apply needed for chart bumps.
@@ -101,7 +101,7 @@ Your IAM user/role also needs `ssm:StartSession` on the bastion and the usual EK
 | VPC, KMS, EKS (private API), SSM bastion, bootstrap MNG | Cilium + Hubble (sole CNI / kube-proxy replacement) |
 | EKS add-ons (CoreDNS, EBS CSI only) | **Karpenter** controller + NodePools |
 | Karpenter AWS IAM / SQS | Kyverno, Falco, Istio |
-| IRSA roles (LBC, external-dns, …) | cert-manager, external-dns, metrics-server |
+| IRSA roles (LBC, external-dns, …) | external-dns, metrics-server |
 | Argo CD install + bootstrap | Fluentd, Prometheus, Grafana, Alertmanager, Jaeger |
 
 ## Repository layout
@@ -161,6 +161,6 @@ Public DNS, ingress, bastion access, and Cilium networking are documented in **[
    - `falcosidekick-notification-secrets` in `falco` (Slack webhook for runtime security alerts)
 3. Open **https://grafana.dummy.cool**.
 
-**Dashboard folders:** Overview, Nodes, Storage, Platform (Istio, Cilium, Hubble, Karpenter), Observability (Falco, Jaeger, cert-manager, Fluentd), plus chart defaults (kubernetes-mixin).
+**Dashboard folders:** Overview, Nodes, Storage, Platform (Istio, Cilium, Hubble, Karpenter), Observability (Falco, Jaeger, Fluentd), plus chart defaults (kubernetes-mixin).
 
 **Alertmanager** routes critical alerts to Slack and PagerDuty; warnings to Slack. Runbooks: [`docs/runbooks/`](docs/runbooks/).

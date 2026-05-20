@@ -10,6 +10,7 @@ resource "null_resource" "irsa_gitops_patch" {
 
   triggers = {
     irsa_sha     = sha256(jsonencode(var.irsa_map))
+    acm_arn      = coalesce(local.platform_acm_certificate_arn, "")
     script_sha   = filesha256("${path.module}/patch-irsa.sh")
     cluster_name = var.cluster_name
   }
@@ -25,6 +26,7 @@ resource "null_resource" "irsa_gitops_patch" {
       export AWS_LBC_ROLE_ARN="${var.irsa_map["aws_load_balancer_controller_role_arn"]}"
       export EXTERNAL_DNS_ROLE_ARN="${var.irsa_map["external_dns_role_arn"]}"
       export VPC_ID="${var.irsa_map["vpc_id"]}"
+      export ACM_CERTIFICATE_ARN="${coalesce(local.platform_acm_certificate_arn, "")}"
       # Wait until Application CRs exist (created when you sync platform-root, or already present).
       for _ in $(seq 1 60); do
         if kubectl get application karpenter -n argocd &>/dev/null; then

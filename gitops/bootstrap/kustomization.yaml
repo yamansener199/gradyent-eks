@@ -9,7 +9,7 @@ configMapGenerator:
       - repo.env
 
 resources:
-  # cert-manager, aws-lbc, external-dns, argocd-ingress: installed by Terraform before Argo CD.
+  # aws-lbc, external-dns, ACM TLS, argocd-ingress: installed by Terraform before Argo CD.
   - metrics-server-app.yaml
   - karpenter-app.yaml
   - cilium-app.yaml

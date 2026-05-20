@@ -30,19 +30,15 @@ grafana:
     path: /
     pathType: Prefix
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443},{"HTTP":80}]'
       alb.ingress.kubernetes.io/ssl-redirect: "443"
+      alb.ingress.kubernetes.io/backend-protocol: HTTP
       alb.ingress.kubernetes.io/healthcheck-path: /api/health
       alb.ingress.kubernetes.io/healthcheck-interval-seconds: "15"
     hosts:
       - grafana.dummy.cool
-    tls:
-      - secretName: grafana-tls
-        hosts:
-          - grafana.dummy.cool
 
   sidecar:
     dashboards:
@@ -78,17 +74,13 @@ alertmanager:
     path: /
     pathType: Prefix
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443},{"HTTP":80}]'
       alb.ingress.kubernetes.io/ssl-redirect: "443"
+      alb.ingress.kubernetes.io/backend-protocol: HTTP
     hosts:
       - alertmanager.dummy.cool
-    tls:
-      - secretName: alertmanager-tls
-        hosts:
-          - alertmanager.dummy.cool
   alertmanagerSpec:
     secrets:
       - alertmanager-notification-secrets

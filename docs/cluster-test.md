@@ -93,7 +93,7 @@ kubectl -n argocd get pods
 kubectl -n argocd logs deploy/argocd-repo-server --tail=30
 ```
 
-UI: https://argocd.dummy.cool (after DNS + cert-manager; or port-forward below).
+UI: https://argocd.dummy.cool (after DNS + ACM ALB; or port-forward below).
 
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:443
@@ -111,12 +111,12 @@ kubectl -n kube-system get ds cilium
 kubectl -n kube-system get pods -l app.kubernetes.io/name=hubble-ui
 ```
 
-### cert-manager + LBC + external-dns
+### ACM + LBC + external-dns
 
 ```bash
-kubectl -n cert-manager get pods
-kubectl -n cert-manager get clusterissuer letsencrypt-prod
-kubectl -n kube-system get deploy aws-load-balancer-controller
+aws acm list-certificates --region eu-central-1 --query 'CertificateSummaryList[?DomainName==`dummy.cool`]'
+kubectl -n kube-system get deploy aws-load-balancer-controller external-dns
+kubectl get ingress -A
 kubectl -n kube-system logs deploy/external-dns --tail=20
 ```
 

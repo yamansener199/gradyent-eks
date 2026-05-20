@@ -8,15 +8,13 @@ allInOne:
     type: ClusterIP
 
 collector:
-  enabled: true
-  service:
-    zipkin:
-      port: 9411
+  enabled: false
 
 query:
-  enabled: true
-  service:
-    type: ClusterIP
+  enabled: false
 
 storage:
   type: memory
+
+agent:
+  enabled: false

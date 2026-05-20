@@ -55,9 +55,11 @@ To reduce reliance on NAT for AWS API calls, the VPC module provisions:
 | Type | Services |
 |------|----------|
 | **Gateway** | S3 |
-| **Interface** (private subnets) | EC2, ECR API, ECR DKR, STS, CloudWatch Logs, **SSM**, **ssmmessages**, **ec2messages** |
+| **Interface** (private subnets) | EC2, ECR API, ECR DKR, STS, CloudWatch Logs, **ACM**, **ELB**, **SSM**, **ssmmessages**, **ec2messages** |
 
 SSM endpoints allow the bastion to register with Session Manager without sending management traffic over the public internet.
+
+**Route 53 API** (external-dns) has no VPC interface endpoint in `eu-central-1`; that traffic uses **NAT** and requires correct Cilium pod SNAT.
 
 ---
 
@@ -90,12 +92,27 @@ Configuration: [`gitops/apps/cilium/values.yaml`](../gitops/apps/cilium/values.y
 | `cni.exclusive: true` | Only Cilium manages pod interfaces |
 | `ipam.mode: eni` | AWS ENI-based IP allocation (similar semantics to VPC CNI) |
 | `routingMode: native` | Native routing (no overlay tunnel between nodes in VPC) |
-| `eni.enabled: true` | AWS ENI integration |
+| `eni.awsEnablePrefixDelegation: true` | More pod IPs on the primary ENI (fewer secondary ENIs) |
+| `bpf.masquerade: true` | eBPF SNAT for internet-bound pod traffic |
+| `enableMasqueradeRouteSource: true` | SNAT via the ENI that owns the pod IP (fixes secondary-ENI blackholes) |
+| `ipMasqAgent` | Only `10.0.0.0/16` is non-masqueraded; all other destinations use SNAT → NAT |
 | `kubeProxyReplacement: true` | No kube-proxy DaemonSet |
+
+### Pod egress (NAT + AWS APIs)
+
+Worker nodes use **private subnets** with **one NAT gateway per AZ**. Pod traffic to the public internet (e.g. Route 53 API, Let's Encrypt) is masqueraded to the node IP, then forwarded through NAT.
+
+Without correct masquerading, pods on **secondary ENIs** can lose egress (symptom: AWS LBC / external-dns `i/o timeout`). Terraform and GitOps align on [`modules/eks-addons-bootstrap/cilium-egress.tf`](../modules/eks-addons-bootstrap/cilium-egress.tf) values.
+
+After upgrading Cilium, uncordon any nodes that were cordoned during troubleshooting:
+
+```bash
+kubectl uncordon <node-name>
+```
 
 ### Bootstrap vs GitOps Cilium
 
-On a **new** cluster, pods cannot run until a CNI exists. [`modules/eks-addons-bootstrap/cilium-bootstrap.tf`](../modules/eks-addons-bootstrap/cilium-bootstrap.tf) installs a minimal Cilium Helm release **before** Argo CD. Argo CD wave 1 then reconciles the full chart (Hubble, metrics, ingress, etc.).
+On a **new** cluster, pods cannot run until a CNI exists. [`modules/eks-addons-bootstrap/cilium-bootstrap.tf`](../modules/eks-addons-bootstrap/cilium-bootstrap.tf) installs Cilium **before** Argo CD using the same egress settings as GitOps. Argo CD wave 1 then reconciles the full chart (Hubble, metrics, ingress, etc.).
 
 ### Hubble
 
@@ -114,21 +131,19 @@ sequenceDiagram
   participant User
   participant R53 as Route 53
   participant ALB as ALB
-  participant CM as cert-manager
+  participant ACM as ACM
   participant Pod as Service pods
 
   User->>R53: DNS query grafana.dummy.cool
   R53-->>User: ALB alias
-  User->>ALB: HTTPS
-  ALB->>Pod: HTTP or HTTPS to pod
-  Note over CM,ALB: HTTP-01 challenge for new certs
-  CM->>ALB: temporary challenge route
+  User->>ALB: HTTPS (ACM cert on listener)
+  ALB->>Pod: HTTP to pod
 ```
 
 | Component | Role |
 |-----------|------|
 | **AWS Load Balancer Controller** | Watches `Ingress` with `ingressClassName: alb`; creates ALB + target groups |
-| **cert-manager** | Issues TLS certs via Let's Encrypt HTTP-01 (`ingress.class: alb`) |
+| **ACM** | TLS certificates for public ALB listeners (`alb.ingress.kubernetes.io/certificate-arn`) |
 | **external-dns** | Creates/updates Route 53 records from Ingress hostnames |
 | **Ingress annotations** | Scheme `internet-facing`, target-type `ip`, SSL redirect, optional health checks |
 
@@ -136,7 +151,7 @@ Example annotations (Grafana): [`gitops/apps/kube-prometheus-stack/values.yaml`]
 
 ### Argo CD TLS model
 
-Argo CD is **not** run with `server.insecure`. The server presents a **cert-manager-issued certificate**; the ALB uses `backend-protocol: HTTPS` to the Argo CD server pod. TLS is terminated at the ALB for clients; the hop ALB → Argo CD is also encrypted.
+Argo CD runs with `server.insecure = true`: TLS terminates at the **ALB** (ACM certificate); the ALB forwards HTTP to the Argo CD server pod.
 
 ---
 

@@ -67,16 +67,19 @@ resource "aws_vpc_endpoint" "s3" {
 }
 
 # Interface endpoints: core AWS APIs + SSM (Session Manager for bastion, no SSH).
+# Route 53 API (external-dns) has no interface endpoint in most regions — pod egress uses NAT + Cilium SNAT.
 locals {
   interface_endpoints = {
-    ec2         = "com.amazonaws.${var.aws_region}.ec2"
-    ecr_api     = "com.amazonaws.${var.aws_region}.ecr.api"
-    ecr_dkr     = "com.amazonaws.${var.aws_region}.ecr.dkr"
-    sts         = "com.amazonaws.${var.aws_region}.sts"
-    logs        = "com.amazonaws.${var.aws_region}.logs"
-    ssm         = "com.amazonaws.${var.aws_region}.ssm"
-    ssmmessages = "com.amazonaws.${var.aws_region}.ssmmessages"
-    ec2messages = "com.amazonaws.${var.aws_region}.ec2messages"
+    ec2                  = "com.amazonaws.${var.aws_region}.ec2"
+    ecr_api              = "com.amazonaws.${var.aws_region}.ecr.api"
+    ecr_dkr              = "com.amazonaws.${var.aws_region}.ecr.dkr"
+    sts                  = "com.amazonaws.${var.aws_region}.sts"
+    logs                 = "com.amazonaws.${var.aws_region}.logs"
+    ssm                  = "com.amazonaws.${var.aws_region}.ssm"
+    ssmmessages          = "com.amazonaws.${var.aws_region}.ssmmessages"
+    ec2messages          = "com.amazonaws.${var.aws_region}.ec2messages"
+    acm                  = "com.amazonaws.${var.aws_region}.acm"
+    elasticloadbalancing = "com.amazonaws.${var.aws_region}.elasticloadbalancing"
   }
 }
 

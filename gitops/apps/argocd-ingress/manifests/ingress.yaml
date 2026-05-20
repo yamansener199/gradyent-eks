@@ -1,24 +1,19 @@
-# Public Argo CD UI — requires cert-manager + AWS LBC + external-dns (sync wave 1–2 first).
+# Optional Argo CD Ingress when not created by Terraform bootstrap.
+# TLS at ALB via ACM (alb.ingress.kubernetes.io/certificate-arn patched by Terraform).
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: argocd-server
   namespace: argocd
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443},{"HTTP":80}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/backend-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-path: /healthz
-    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
 spec:
   ingressClassName: alb
-  tls:
-    - hosts:
-        - argocd.dummy.cool
-      secretName: argocd-server-tls
   rules:
     - host: argocd.dummy.cool
       http:

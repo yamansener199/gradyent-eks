@@ -39,3 +39,8 @@ output "argocd_url" {
 output "ingress_dns_bootstrapped_by_terraform" {
   value = var.bootstrap_ingress_dns_before_argocd
 }
+
+output "acm_certificate_arn" {
+  description = "ACM certificate ARN used on public ALB Ingresses"
+  value       = local.platform_acm_certificate_arn
+}

@@ -46,3 +46,15 @@ jobs:
           TERRAGRUNT_NON_INTERACTIVE: "true"
           TF_IN_AUTOMATION: "true"
         run: terragrunt run-all validate
+
+      - name: Install test dependencies
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          helm version
+          python3 -c "import yaml" 2>/dev/null || pip install pyyaml
+
+      - name: EKS addons bootstrap tests
+        run: |
+          cd "${GITHUB_WORKSPACE}"
+          terraform -chdir=modules/eks-addons-bootstrap init -backend=false -input=false
+          ./hack/test-eks-addons-bootstrap.sh

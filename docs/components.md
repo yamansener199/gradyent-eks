@@ -14,10 +14,7 @@ All Applications are defined under [`gitops/bootstrap/`](../gitops/bootstrap/) a
 |-------------|------|------|----------------------|--------------|
 | metrics-server | -1 | `gitops/apps/metrics-server` | `kube-system` | Helm |
 | karpenter | 0 | `gitops/apps/karpenter` | `karpenter` | Helm + manifests |
-| cert-manager | 1 | `gitops/apps/cert-manager` | `cert-manager` | Helm + ClusterIssuer |
 | cilium | 1 | `gitops/apps/cilium` | `kube-system` | Helm + Hubble Ingress |
-| aws-load-balancer-controller | 2 | `gitops/apps/aws-load-balancer-controller` | `kube-system` | Helm |
-| external-dns | 2 | `gitops/apps/external-dns` | `kube-system` | Helm |
 | kyverno | 2 | `gitops/apps/kyverno` | `kyverno` | Helm |
 | kyverno-policies | 2 | `gitops/policies` | cluster-scoped | Kustomize |
 | falco | 2 | `gitops/apps/falco` | `falco` | Helm |
@@ -33,6 +30,8 @@ All Applications are defined under [`gitops/bootstrap/`](../gitops/bootstrap/) a
 |----------|--------|-------|
 | Argo CD | `eks-addons-bootstrap` | Helm; wave N/A |
 | Cilium bootstrap | `eks-addons-bootstrap` | Minimal chart pre-Argo |
+| ACM certificate | `eks-addons-bootstrap` | `platform_domain` + `*.platform_domain`, DNS validated |
+| AWS LBC + external-dns | `eks-addons-bootstrap` | Before Argo CD Ingress |
 | `platform-root` | `eks-addons-bootstrap` | Points at `gitops/bootstrap` |
 
 ---
@@ -51,11 +50,11 @@ All Applications are defined under [`gitops/bootstrap/`](../gitops/bootstrap/) a
 - **GitOps:** Helm chart + `EC2NodeClass`, `NodePool` manifests.
 - **Discovery:** Subnet/SG tag `karpenter.sh/discovery=gradyent-prod`.
 
-### cert-manager (wave 1)
+### ACM + public ALB Ingress (Terraform)
 
-- **Purpose:** TLS certificate automation.
-- **Issuer:** `letsencrypt-prod` ClusterIssuer — HTTP-01 via `ingress.class: alb`.
-- **Used by:** Grafana, Alertmanager, Jaeger, Hubble, Argo CD ingress certificates.
+- **Purpose:** TLS for `argocd`, `grafana`, `alertmanager`, `jaeger`, `hubble` hostnames under `platform_domain`.
+- **Mechanism:** `aws_acm_certificate` + Route 53 DNS validation; `alb.ingress.kubernetes.io/certificate-arn` on Ingresses.
+- **GitOps:** `patch-irsa.sh` patches the ACM ARN onto Helm/Kustomize Applications after registration.
 
 ### Cilium (wave 1)
 
@@ -63,17 +62,11 @@ All Applications are defined under [`gitops/bootstrap/`](../gitops/bootstrap/) a
 - **Version pin:** `1.17.4` in `kustomization.yaml`.
 - **See:** [networking.md](networking.md).
 
-### aws-load-balancer-controller (wave 2)
+### aws-load-balancer-controller + external-dns (Terraform)
 
-- **Purpose:** Manage ALB/NLB for Kubernetes `Ingress` and `Service type=LoadBalancer`.
-- **IRSA:** `gradyent-prod-aws-load-balancer-controller`.
-- **Config:** `vpcId`, `clusterName`, `region` in values; IRSA ARN patched at bootstrap.
-
-### external-dns (wave 2)
-
-- **Purpose:** Sync Ingress hostnames to Route 53 (`dummy.cool`).
-- **IRSA:** `gradyent-prod-external-dns`.
-- **Policy:** `sync` — removes records when Ingress deleted.
+- **Installed before Argo CD** by `eks-addons-bootstrap` (not in bootstrap kustomization).
+- **LBC:** ALB/NLB for `Ingress`; IRSA `gradyent-prod-aws-load-balancer-controller`.
+- **external-dns:** Route 53 records for Ingress hosts under `platform_domain`.
 
 ### Kyverno + policies (wave 2)
 
@@ -105,7 +98,7 @@ All Applications are defined under [`gitops/bootstrap/`](../gitops/bootstrap/) a
 - **Ingress:** Grafana + Alertmanager public hostnames.
 - **Dashboards:** Vendored JSON + ConfigMap generator.
 - **Alerts:** Slack channels + PagerDuty for critical; runbook URLs on rules.
-- **Scrapes:** Platform ServiceMonitors (Karpenter, Jaeger, Cilium, cert-manager, etc.).
+- **Scrapes:** Platform ServiceMonitors (Karpenter, Jaeger, Cilium, etc.).
 
 ### Jaeger (wave 4)
 
@@ -135,7 +128,6 @@ All Applications are defined under [`gitops/bootstrap/`](../gitops/bootstrap/) a
 |-----------|-----------|
 | `kube-system` | Cilium, LBC, external-dns, metrics-server, CoreDNS, EBS CSI |
 | `karpenter` | Karpenter controller |
-| `cert-manager` | cert-manager |
 | `kyverno` | Kyverno |
 | `falco` | Falco, Falcosidekick |
 | `istio-system` | Istiod |

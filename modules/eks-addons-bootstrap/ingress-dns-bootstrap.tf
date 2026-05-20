@@ -9,106 +9,17 @@ locals {
   ]
 
   alb_ingress_annotations = {
-    "cert-manager.io/cluster-issuer"           = "letsencrypt-prod"
-    "alb.ingress.kubernetes.io/scheme"         = "internet-facing"
-    "alb.ingress.kubernetes.io/target-type"    = "ip"
-    "alb.ingress.kubernetes.io/listen-ports"   = "[{\"HTTPS\":443},{\"HTTP\":80}]"
-    "alb.ingress.kubernetes.io/ssl-redirect"   = "443"
-    "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
-    "alb.ingress.kubernetes.io/healthcheck-path" = "/healthz"
+    "alb.ingress.kubernetes.io/certificate-arn"    = local.platform_acm_certificate_arn
+    "alb.ingress.kubernetes.io/scheme"               = "internet-facing"
+    "alb.ingress.kubernetes.io/target-type"          = "ip"
+    "alb.ingress.kubernetes.io/listen-ports"         = "[{\"HTTPS\":443},{\"HTTP\":80}]"
+    "alb.ingress.kubernetes.io/ssl-redirect"         = "443"
+    "alb.ingress.kubernetes.io/backend-protocol"     = "HTTP"
+    "alb.ingress.kubernetes.io/healthcheck-path"     = "/healthz"
   }
-}
-
-resource "kubernetes_namespace_v1" "cert_manager" {
-  count = var.bootstrap_ingress_dns_before_argocd ? 1 : 0
-
-  metadata {
-    name = "cert-manager"
-    labels = {
-      "app.kubernetes.io/managed-by" = "terraform"
-    }
-  }
-}
-
-resource "helm_release" "cert_manager" {
-  count = var.bootstrap_ingress_dns_before_argocd ? 1 : 0
-
-  name       = "cert-manager"
-  repository = "https://charts.jetstack.io"
-  chart      = "cert-manager"
-  version    = var.cert_manager_chart_version
-  namespace  = kubernetes_namespace_v1.cert_manager[0].metadata[0].name
-
-  wait    = true
-  timeout = 600
-
-  values = [
-    yamlencode({
-      crds = { enabled = true }
-      prometheus = {
-        enabled = false
-      }
-      tolerations = local.critical_addons_tolerations
-      webhook = {
-        tolerations = local.critical_addons_tolerations
-      }
-      cainjector = {
-        tolerations = local.critical_addons_tolerations
-      }
-      startupapicheck = {
-        tolerations = local.critical_addons_tolerations
-      }
-    }),
-  ]
-
-  depends_on = [
-    helm_release.cilium_bootstrap,
-    null_resource.remove_vpc_cni_and_kube_proxy,
-  ]
-}
-
-resource "time_sleep" "wait_cert_manager" {
-  count = var.bootstrap_ingress_dns_before_argocd ? 1 : 0
-
-  depends_on      = [helm_release.cert_manager]
-  create_duration = "60s"
-}
-
-resource "kubernetes_manifest" "letsencrypt_prod" {
-  count = var.bootstrap_ingress_dns_before_argocd ? 1 : 0
-
-  manifest = {
-    apiVersion = "cert-manager.io/v1"
-    kind       = "ClusterIssuer"
-    metadata = {
-      name = "letsencrypt-prod"
-    }
-    spec = {
-      acme = {
-        server = "https://acme-v02.api.letsencrypt.org/directory"
-        email  = var.acme_email
-        privateKeySecretRef = {
-          name = "letsencrypt-prod-account-key"
-        }
-        solvers = [
-          {
-            http01 = {
-              ingress = {
-                class = "alb"
-              }
-            }
-          },
-        ]
-      }
-    }
-  }
-
-  depends_on = [time_sleep.wait_cert_manager]
 }
 
 resource "helm_release" "aws_load_balancer_controller" {
-  count = var.bootstrap_ingress_dns_before_argocd ? 1 : 0
-
   name       = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
@@ -130,17 +41,19 @@ resource "helm_release" "aws_load_balancer_controller" {
           "eks.amazonaws.com/role-arn" = var.irsa_map["aws_load_balancer_controller_role_arn"]
         }
       }
-      enableCertManager = true
+      enableCertManager = false
       tolerations       = local.critical_addons_tolerations
     }),
   ]
 
-  depends_on = [kubernetes_manifest.letsencrypt_prod]
+  depends_on = [
+    helm_release.cilium_bootstrap,
+    null_resource.remove_vpc_cni_and_kube_proxy,
+    aws_acm_certificate_validation.platform,
+  ]
 }
 
 resource "helm_release" "external_dns" {
-  count = var.bootstrap_ingress_dns_before_argocd ? 1 : 0
-
   name       = "external-dns"
   repository = "https://kubernetes-sigs.github.io/external-dns/"
   chart      = "external-dns"
