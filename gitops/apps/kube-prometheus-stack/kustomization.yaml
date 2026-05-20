@@ -12,6 +12,7 @@ helmCharts:
     valuesFile: values.yaml
 
 resources:
+  - manifests/storageclass-gp3.yaml
   - manifests/grafana-admin-secret.yaml
   - manifests/alertmanager-notification-secret.yaml
   - manifests/istio-servicemonitors.yaml

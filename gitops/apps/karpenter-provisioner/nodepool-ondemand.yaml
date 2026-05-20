@@ -26,6 +26,9 @@ spec:
         - key: karpenter.k8s.aws/instance-category
           operator: In
           values: [c, m, r]
+        - key: karpenter.k8s.aws/instance-size
+          operator: NotIn
+          values: [nano, micro, small, medium]
       taints: []
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized

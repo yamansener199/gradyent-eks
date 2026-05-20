@@ -29,6 +29,10 @@ spec:
         - key: karpenter.k8s.aws/instance-generation
           operator: Gt
           values: ["5"]
+        # medium instances (e.g. c7a.medium) cap at 8 pods — too few for platform DaemonSets.
+        - key: karpenter.k8s.aws/instance-size
+          operator: NotIn
+          values: [nano, micro, small, medium]
       taints: []
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
