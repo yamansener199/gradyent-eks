@@ -1,4 +1,5 @@
 kind: DaemonSet
+variant: cloudwatch
 
 serviceAccount:
   create: true
@@ -9,13 +10,38 @@ serviceAccount:
 tolerations:
   - operator: Exists
 
+env:
+  - name: K8S_NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+
+# Startup on small nodes (c7a.medium) tails many files; default probe delay=0 kills the container.
+livenessProbe:
+  httpGet:
+    path: /metrics
+    port: metrics
+  initialDelaySeconds: 90
+  periodSeconds: 20
+  timeoutSeconds: 5
+  failureThreshold: 5
+
+readinessProbe:
+  httpGet:
+    path: /metrics
+    port: metrics
+  initialDelaySeconds: 45
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 5
+
 resources:
   requests:
-    cpu: 100m
-    memory: 256Mi
+    cpu: 50m
+    memory: 128Mi
   limits:
-    cpu: 500m
-    memory: 768Mi
+    cpu: 300m
+    memory: 512Mi
 
 fileConfigs:
   01_sources.conf: |-
@@ -26,10 +52,17 @@ fileConfigs:
       exclude_path ["/var/log/containers/*fluentd*.log"]
       pos_file /var/log/fluentd-containers.log.pos
       tag kubernetes.*
-      read_from_head true
+      read_from_head false
       <parse>
         @type cri
       </parse>
+    </source>
+
+    <source>
+      @type prometheus
+      bind 0.0.0.0
+      port 24231
+      metrics_path /metrics
     </source>
 
   02_filters.conf: |-
@@ -62,6 +95,9 @@ fileConfigs:
       </record>
     </filter>
 
+  03_dispatch.conf: |+
+    # Unused; override chart default dispatch label.
+
   03_outputs.conf: |-
     <match kubernetes.**>
       @type cloudwatch_logs
@@ -76,6 +112,9 @@ fileConfigs:
         retry_forever true
       </buffer>
     </match>
+
+  04_outputs.conf: |+
+    # Override chart default elasticsearch output.
 
 plugins:
   - fluent-plugin-kubernetes_metadata_filter
