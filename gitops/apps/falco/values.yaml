@@ -1,10 +1,9 @@
 driver:
-  # modern_ebpf hangs on some AL2023 EKS nodes at "Trying to open the right engine"
-  # so /healthz never listens; legacy ebpf + driver-loader init is more reliable.
-  kind: ebpf
-  ebpf:
-    bufSizePreset: 3
-    leastPrivileged: false
+  kind: modern_ebpf
+  modernEbpf:
+    cpusForEachBuffer: 1
+    # preset 3 (4MB) triggers perf-buffer mmap failures on 1-vCPU spot nodes.
+    bufSizePreset: 1
 
 falco:
   webserver:
@@ -16,12 +15,12 @@ healthChecks:
     initialDelaySeconds: 120
     periodSeconds: 15
     timeoutSeconds: 5
-    failureThreshold: 10
+    failureThreshold: 12
   livenessProbe:
-    initialDelaySeconds: 180
-    periodSeconds: 20
+    initialDelaySeconds: 240
+    periodSeconds: 30
     timeoutSeconds: 5
-    failureThreshold: 8
+    failureThreshold: 6
 
 serviceAccount:
   create: true
