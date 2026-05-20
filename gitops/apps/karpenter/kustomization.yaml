@@ -10,6 +10,7 @@ helmCharts:
     releaseName: karpenter
     namespace: karpenter
     valuesFile: values.yaml
+    includeCRDs: true
 
 resources:
   - manifests/ec2nodeclass.yaml

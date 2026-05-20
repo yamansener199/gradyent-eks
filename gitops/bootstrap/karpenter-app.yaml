@@ -21,6 +21,8 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - RespectIgnoreDifferences=true
+      # NodePool/EC2NodeClass apply after Helm CRDs on first sync.
+      - SkipDryRunOnMissingResource=true
   ignoreDifferences:
     - group: apps
       kind: Deployment
