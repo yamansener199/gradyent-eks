@@ -1,9 +1,8 @@
 driver:
-  kind: modern_ebpf
-  modernEbpf:
-    cpusForEachBuffer: 1
-    # preset 3 (4MB) triggers perf-buffer mmap failures on 1-vCPU spot nodes.
+  kind: ebpf
+  ebpf:
     bufSizePreset: 1
+    leastPrivileged: false
 
 falco:
   webserver:
