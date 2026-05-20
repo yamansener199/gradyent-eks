@@ -28,8 +28,18 @@ ipMasqAgent:
     masqLinkLocal: false
 
 kubeProxyReplacement: true
-# k8sServiceHost is set via patches/cilium-*-k8s-api.yaml from Terraform ConfigMap
-# cilium-k8s-api (Argo kustomize helm cannot resolve k8sServiceHost=auto).
+# EKS API endpoint for kube-proxy replacement (ConfigMap created by Terraform).
+extraEnv:
+  - name: KUBERNETES_SERVICE_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: cilium-k8s-api
+        key: host
+  - name: KUBERNETES_SERVICE_PORT
+    valueFrom:
+      configMapKeyRef:
+        name: cilium-k8s-api
+        key: port
 
 prometheus:
   enabled: true
@@ -59,6 +69,17 @@ hubble:
 
 operator:
   replicas: 2
+  extraEnv:
+    - name: KUBERNETES_SERVICE_HOST
+      valueFrom:
+        configMapKeyRef:
+          name: cilium-k8s-api
+          key: host
+    - name: KUBERNETES_SERVICE_PORT
+      valueFrom:
+        configMapKeyRef:
+          name: cilium-k8s-api
+          key: port
 
 tolerations:
   - operator: Exists
