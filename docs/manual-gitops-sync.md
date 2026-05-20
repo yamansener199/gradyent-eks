@@ -22,6 +22,14 @@ Terraform does **not** run `bootstrap-platform.sh` (no wait-for-Synced loop).
 
 It **does** `kubectl apply` `gitops/bootstrap/` so platform Applications appear in the UI as **OutOfSync** (ACM / LBC / external-dns are **not** duplicated there; Terraform owns them).
 
+**Not Argo CD apps (Terraform only):** `cert-manager`, `aws-load-balancer-controller`, `external-dns`, and `argocd-ingress`. If you still see them in the UI after an older deploy, delete the stale Application CRs:
+
+```bash
+kubectl delete application cert-manager aws-load-balancer-controller external-dns -n argocd --ignore-not-found
+```
+
+Public ingress TLS uses **ACM**, not in-cluster cert-manager.
+
 ---
 
 ## Deploy commands
