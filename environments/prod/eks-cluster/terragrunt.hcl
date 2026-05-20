@@ -43,7 +43,7 @@ inputs = {
   cluster_name             = include.env.locals.cluster_name
   eks_version              = include.env.locals.eks_version
 
-  # Private API only — kubectl/terraform reach the cluster from the SSM bastion (or VPN).
-  cluster_endpoint_public_access       = false
-  cluster_endpoint_public_access_cidrs = []
+  # Public API for initial deploy/bootstrap from laptop; set false + use bastion after cutover.
+  cluster_endpoint_public_access       = true
+  cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"]
 }

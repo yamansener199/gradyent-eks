@@ -6,7 +6,7 @@ locals {
   eks_version  = "1.35"
 
   # Platform GitOps only (no frontend/backend apps). Must match gitops/bootstrap/repo.env.
-  gitops_repo_url = "https://github.com/gradyent/gradyent.ai.git"
+  gitops_repo_url = "https://github.com/yamansener199/gradyent-eks.git"
   gitops_revision = "main"
 
   # Public DNS for platform UIs (Route 53 / external DNS). Must match gitops/bootstrap/platform-dns.env.
