@@ -4,7 +4,7 @@ kind: Kustomization
 helmCharts:
   - name: falco
     repo: https://falcosecurity.github.io/charts
-    version: 6.4.1
+    version: 7.2.1
     releaseName: falco
     namespace: falco
     valuesFile: values.yaml
