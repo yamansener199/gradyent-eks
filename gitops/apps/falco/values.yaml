@@ -1,6 +1,7 @@
 driver:
-  # modern_ebpf scap_init fails on current AL2023 EKS nodes; classic eBPF loader is stable.
-  kind: ebpf
+  kind: modern_ebpf
+  modernEbpf:
+    cpusForEachBuffer: 1
 
 falco:
   webserver:
