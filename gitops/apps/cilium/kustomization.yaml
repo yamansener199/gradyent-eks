@@ -11,3 +11,7 @@ helmCharts:
 
 resources:
   - manifests/hubble-ingress.yaml
+
+patches:
+  - path: patches/cilium-operator-k8s-api.yaml
+  - path: patches/cilium-daemonset-k8s-api.yaml

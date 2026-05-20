@@ -33,6 +33,23 @@ resource "kubernetes_config_map_v1" "cluster_info" {
   }
 }
 
+# GitOps Cilium patches read the EKS API endpoint from here (Helm lookup is unavailable
+# during Argo kustomize --enable-helm render, so k8sServiceHost=auto becomes literal "auto").
+resource "kubernetes_config_map_v1" "cilium_k8s_api" {
+  metadata {
+    name      = "cilium-k8s-api"
+    namespace = "kube-system"
+    labels = {
+      "app.kubernetes.io/managed-by" = "terraform"
+    }
+  }
+
+  data = {
+    host = local.k8s_service_host
+    port = "443"
+  }
+}
+
 # Cilium must exist before Argo CD when the EKS vpc-cni add-on is omitted (Cilium-only).
 # Argo CD (sync wave 1) upgrades this release with full values from gitops/apps/cilium.
 resource "helm_release" "cilium_bootstrap" {
@@ -49,5 +66,8 @@ resource "helm_release" "cilium_bootstrap" {
     yamlencode(local.cilium_platform_values),
   ]
 
-  depends_on = [kubernetes_config_map_v1.cluster_info]
+  depends_on = [
+    kubernetes_config_map_v1.cluster_info,
+    kubernetes_config_map_v1.cilium_k8s_api,
+  ]
 }

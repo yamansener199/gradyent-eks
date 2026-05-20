@@ -28,8 +28,8 @@ ipMasqAgent:
     masqLinkLocal: false
 
 kubeProxyReplacement: true
-k8sServiceHost: auto
-k8sServicePort: auto
+# k8sServiceHost is set via patches/cilium-*-k8s-api.yaml from Terraform ConfigMap
+# cilium-k8s-api (Argo kustomize helm cannot resolve k8sServiceHost=auto).
 
 prometheus:
   enabled: true
