@@ -1,7 +1,5 @@
 driver:
   kind: modern_ebpf
-  modernEbpf:
-    cpusForEachBuffer: 1
 
 falco:
   webserver:
