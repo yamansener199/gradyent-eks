@@ -1,8 +1,8 @@
 driver:
-  kind: modern_ebpf
+  # modern_ebpf scap_init fails on current AL2023 EKS nodes; classic eBPF loader is stable.
+  kind: ebpf
 
 falco:
-  jsonOutput: true
   webserver:
     enabled: true
     prometheus_metrics_enabled: true
