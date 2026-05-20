@@ -15,7 +15,7 @@ resources:
     memory: 256Mi
   limits:
     cpu: 500m
-    memory: 512Mi
+    memory: 768Mi
 
 fileConfigs:
   01_sources.conf: |-
@@ -23,6 +23,7 @@ fileConfigs:
       @type tail
       @id in_tail_container_logs
       path /var/log/containers/*.log
+      exclude_path ["/var/log/containers/*fluentd*.log"]
       pos_file /var/log/fluentd-containers.log.pos
       tag kubernetes.*
       read_from_head true
@@ -37,12 +38,19 @@ fileConfigs:
       @id filter_kube_metadata
     </filter>
     <filter kubernetes.**>
+      @type grep
+      <exclude>
+        key $.kubernetes.namespace_name
+        pattern /^logging$/
+      </exclude>
+    </filter>
+    <filter kubernetes.**>
       @type parser
-      key_name log
+      key_name message
       reserve_data true
+      emit_invalid_record_to_error false
       <parse>
         @type json
-        json_parser json
       </parse>
     </filter>
     <filter kubernetes.**>
