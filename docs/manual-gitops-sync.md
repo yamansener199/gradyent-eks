@@ -101,6 +101,7 @@ In the UI, use **Sync** (not Refresh only). Respect sync waves so dependencies e
 | 12 | kube-prometheus-stack | 4 | Monitoring / Grafana (installs ServiceMonitor CRDs) |
 | 13 | jaeger | 4 | Tracing |
 | 14 | cilium-servicemonitors | 5 | Cilium + Hubble metrics (after Prometheus CRDs) |
+| 15 | falco-servicemonitors | 5 | Falco metrics (after Prometheus CRDs) |
 
 **Tip:** After step 1, filter Applications by name. Sync **OutOfSync** apps in wave order. Use **Sync → Synchronize** with defaults; enable **Prune** only when you intend to delete removed resources.
 

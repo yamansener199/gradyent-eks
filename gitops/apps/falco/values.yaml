@@ -95,7 +95,8 @@ metrics:
     enabled: true
 
 serviceMonitor:
-  create: true
+  # Applied by gitops/apps/falco-servicemonitors after kube-prometheus-stack (wave 5).
+  create: false
   labels:
     release: kube-prometheus-stack
 
