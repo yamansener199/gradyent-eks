@@ -5,12 +5,16 @@ global:
 
 meshConfig:
   enableAutoMtls: true
+  enableTracing: true
   defaultConfig:
-    tracing:
-      zipkin:
-        address: jaeger-collector.observability.svc.cluster.local:9411
+    tracing: {}
     proxyMetadata:
       ISTIO_META_DNS_CAPTURE: "true"
+  extensionProviders:
+    - name: zipkin
+      zipkin:
+        service: jaeger-collector.observability.svc.cluster.local
+        port: 9411
 
 pilot:
   autoscaleEnabled: true

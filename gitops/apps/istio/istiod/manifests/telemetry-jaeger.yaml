@@ -8,5 +8,3 @@ spec:
     - providers:
         - name: zipkin
       randomSamplingPercentage: 10
-      zipkin:
-        address: jaeger-collector.observability.svc.cluster.local:9411
