@@ -20,6 +20,7 @@ resources:
   - kyverno-policies-app.yaml
   - falco-app.yaml
   - istio-base-app.yaml
+  - istio-namespace-labels-app.yaml
   - istiod-app.yaml
   - fluentd-app.yaml
   - kube-prometheus-stack-app.yaml

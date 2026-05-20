@@ -13,5 +13,4 @@ helmCharts:
 
 resources:
   - manifests/peer-authentication-strict.yaml
-  - manifests/namespace-labels.yaml
   - manifests/telemetry-jaeger.yaml
