@@ -65,12 +65,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 Open https://localhost:8080 (accept self-signed cert).
 
-**Admin password:**
-
-```bash
-kubectl -n argocd get secret argocd-initial-admin-secret \
-  -o jsonpath='{.data.password}' | base64 -d && echo
-```
+**Login (trivial dev):** username `admin`, password `admin`. After changing Terraform Helm values, run `terragrunt apply` in `eks-addons-bootstrap` so Argo CD picks up the bcrypt hash in `argocd-secret`.
 
 ### Option B — Public DNS (default after Terraform)
 
@@ -118,7 +113,7 @@ This runs after `platform-root` creates Application objects. If you sync **befor
 ## CLI alternative (optional)
 
 ```bash
-argocd login localhost:8080 --username admin --password <from-secret> --insecure
+argocd login localhost:8080 --username admin --password admin --insecure
 argocd app sync platform-root
 argocd app sync metrics-server
 argocd app sync karpenter

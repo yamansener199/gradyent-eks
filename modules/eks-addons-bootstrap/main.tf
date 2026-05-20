@@ -110,6 +110,11 @@ resource "helm_release" "argocd" {
         keep    = false
       }
       configs = {
+        # Trivial dev credentials: admin / admin (bcrypt hash for Argo CD server).
+        secret = {
+          argocdServerAdminPassword      = "$$2a$$10$$jm3HiZf2e56A/8HnmmHQtOlrNUdh3SJ37yZertFH.ny.xBXnV761m"
+          argocdServerAdminPasswordMtime = "2020-01-01T00:00:00Z"
+        }
         cm = {
           url = "https://argocd.${var.platform_domain}"
           # gitops/apps/* use Kustomize helmCharts generators (same as gitops-ci.yml).

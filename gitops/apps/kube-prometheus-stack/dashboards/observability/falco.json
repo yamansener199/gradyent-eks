@@ -1,1 +1,642 @@
-{"__inputs":[{"name":"DS_PROMETHEUS","label":"Prometheus","description":"","type":"datasource","pluginId":"prometheus","pluginName":"Prometheus"}],"__requires":[{"type":"grafana","id":"grafana","name":"Grafana","version":"6.6.2"},{"type":"panel","id":"graph","name":"Graph","version":""},{"type":"datasource","id":"prometheus","name":"Prometheus","version":"1.0.0"},{"type":"panel","id":"table","name":"Table","version":""}],"annotations":{"list":[{"builtIn":1,"datasource":"-- Grafana --","enable":true,"hide":true,"iconColor":"rgba(0, 211, 255, 1)","name":"Annotations & Alerts","type":"dashboard"}]},"editable":true,"gnetId":11914,"graphTooltip":0,"links":[],"panels":[{"aliasColors":{},"bars":false,"dashLength":10,"dashes":false,"datasource":"${DS_PROMETHEUS}","description":"","fill":1,"fillGradient":0,"gridPos":{"h":11,"w":24,"x":0,"y":0},"hiddenSeries":false,"legend":{"alignAsTable":true,"avg":false,"current":false,"max":false,"min":false,"rightSide":true,"show":true,"total":false,"values":false},"lines":true,"linewidth":1,"nullPointMode":"null","options":{"dataLinks":[]},"percentage":false,"pointradius":2,"points":false,"renderer":"flot","seriesOverrides":[],"spaceLength":10,"stack":true,"steppedLine":false,"targets":[{"expr":"rate(falco_events[5m])","intervalFactor":1,"legendFormat":"{{rule}} ({{hostname}})","refId":"A"}],"thresholds":[],"timeFrom":null,"timeRegions":[],"timeShift":null,"title":"Events rate","tooltip":{"shared":true,"sort":0,"value_type":"individual"},"type":"graph","xaxis":{"buckets":null,"mode":"time","name":null,"show":true,"values":[]},"yaxes":[{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":true}],"yaxis":{"align":false,"alignLevel":null}},{"columns":[],"datasource":"${DS_PROMETHEUS}","fontSize":"100%","gridPos":{"h":10,"w":24,"x":0,"y":11},"links":[],"options":{},"pageSize":null,"showHeader":true,"sort":{"col":null,"desc":false},"styles":[{"alias":"Time","align":"auto","dateFormat":"YYYY-MM-DD HH:mm:ss","pattern":"Time","type":"date"},{"alias":"","align":"auto","colorMode":null,"colors":["rgba(245, 54, 54, 0.9)","rgba(237, 129, 40, 0.89)","rgba(50, 172, 45, 0.97)"],"dateFormat":"YYYY-MM-DD HH:mm:ss","decimals":2,"link":false,"mappingType":1,"pattern":"/__name__|job|kubernetes_name|(__name|helm_|app_|pod_).*/","thresholds":[],"type":"hidden","unit":"short"},{"alias":"Count","align":"auto","colorMode":null,"colors":["rgba(245, 54, 54, 0.9)","rgba(237, 129, 40, 0.89)","rgba(50, 172, 45, 0.97)"],"dateFormat":"YYYY-MM-DD HH:mm:ss","decimals":0,"mappingType":1,"pattern":"Value","thresholds":[],"type":"number","unit":"short"},{"alias":"","align":"left","colorMode":null,"colors":["rgba(245, 54, 54, 0.9)","rgba(237, 129, 40, 0.89)","rgba(50, 172, 45, 0.97)"],"dateFormat":"YYYY-MM-DD HH:mm:ss","decimals":0,"mappingType":1,"pattern":"priority","thresholds":[""],"type":"number","unit":"none","valueMaps":[{"text":"5","value":"5"}]},{"alias":"","align":"left","colorMode":null,"colors":["rgba(245, 54, 54, 0.9)","rgba(237, 129, 40, 0.89)","rgba(50, 172, 45, 0.97)"],"decimals":2,"pattern":"/.*/","thresholds":[],"type":"string","unit":"short"}],"targets":[{"expr":"falco_events","format":"table","instant":true,"refId":"A"}],"timeFrom":null,"timeShift":null,"title":"Totals","transform":"table","transparent":true,"type":"table"}],"schemaVersion":22,"style":"dark","tags":[],"templating":{"list":[]},"time":{"from":"now-6h","to":"now"},"timepicker":{},"timezone":"","title":"Falco Dashboard","uid":null,"version":4,"description":"Grafana dashboard for Falco output events"}
+{
+  "title": "Falco security",
+  "uid": "gradyent-falco",
+  "description": "Runtime threat detection: rule matches, agent health, and notification pipeline. Uses Falco 0.42+ metrics (falcosecurity_*).",
+  "tags": ["security", "falco", "gradyent", "observability"],
+  "timezone": "UTC",
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "graphTooltip": 1,
+  "time": { "from": "now-6h", "to": "now" },
+  "links": [],
+  "annotations": { "list": [] },
+  "templating": {
+    "list": [
+      {
+        "name": "priority",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "query": "label_values(falcosecurity_falco_rules_matches_total, priority)",
+        "includeAll": true,
+        "multi": true,
+        "allValue": ".*",
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "refresh": 2
+      },
+      {
+        "name": "rule",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "query": "label_values(falcosecurity_falco_rules_matches_total, rule_name)",
+        "includeAll": true,
+        "multi": true,
+        "allValue": ".*",
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "refresh": 2
+      },
+      {
+        "name": "namespace",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "query": "label_values(falcosecurity_falcosidekick_falco_events_total, k8s_ns_name)",
+        "includeAll": true,
+        "multi": true,
+        "allValue": ".*",
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "refresh": 2
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Security posture",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "type": "stat",
+      "title": "Falco agents up",
+      "description": "DaemonSet pods successfully scraped on :8765/metrics",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "green", "value": 10 }
+            ]
+          }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "count(up{job=\"falco-metrics\"} == 1) or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Agents down",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "count(up{job=\"falco-metrics\"} == 0) or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Event rate (all rules)",
+      "description": "Rule matches per second across the cluster",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "decimals": 3,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.05 },
+              { "color": "red", "value": 0.5 }
+            ]
+          }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value" },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(falcosecurity_falco_rules_matches_total{priority=~\"$priority\",rule_name=~\"$rule\"}[5m])) or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Critical / emergency rate",
+      "description": "Falco priority 0–2 (Emergency, Alert, Critical)",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "decimals": 3,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.001 },
+              { "color": "red", "value": 0.01 }
+            ]
+          }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(falcosecurity_falco_rules_matches_total{priority=~\"0|1|2\",rule_name=~\"$rule\"}[5m])) or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Warning rate",
+      "description": "Falco priority 3–4 (Error, Warning)",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "decimals": 3,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.01 },
+              { "color": "orange", "value": 0.1 }
+            ]
+          }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value" },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(falcosecurity_falco_rules_matches_total{priority=~\"3|4\",rule_name=~\"$rule\"}[5m])) or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Gradyent custom rules rate",
+      "description": "Shell, exec, sensitive file read, cryptominer rules defined in GitOps",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "decimals": 3,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.001 },
+              { "color": "red", "value": 0.01 }
+            ]
+          }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(falcosecurity_falco_rules_matches_total{rule_name=~\"Shell in Container|Exec into Container|Sensitive File Read in Container|Cryptominer Outbound Connection\"}[5m])) or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Rule activity",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "Rule match rate by rule",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "stacking": { "mode": "normal" } },
+          "unit": "ops"
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max", "last"] },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "topk(12, sum by (rule_name) (rate(falcosecurity_falco_rules_matches_total{priority=~\"$priority\",rule_name=~\"$rule\"}[5m])))",
+          "legendFormat": "{{rule_name}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Rule match rate by priority",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "stacking": { "mode": "normal" } },
+          "unit": "ops",
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "Emergency" }, "1": { "text": "Alert" }, "2": { "text": "Critical" }, "3": { "text": "Error" }, "4": { "text": "Warning" }, "5": { "text": "Notice" }, "6": { "text": "Info" }, "7": { "text": "Debug" } } }
+          ]
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (priority) (rate(falcosecurity_falco_rules_matches_total{priority=~\"$priority\",rule_name=~\"$rule\"}[5m]))",
+          "legendFormat": "priority {{priority}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Top rules (selected time range)",
+      "description": "Total matches per rule — use for triage and tuning noisy rules",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto" } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Value" },
+            "properties": [
+              { "id": "displayName", "value": "Matches" },
+              { "id": "decimals", "value": 0 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "priority" },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  { "type": "value", "options": { "0": { "text": "Emergency", "color": "red" }, "1": { "text": "Alert", "color": "red" }, "2": { "text": "Critical", "color": "red" }, "3": { "text": "Error", "color": "orange" }, "4": { "text": "Warning", "color": "yellow" }, "5": { "text": "Notice", "color": "green" }, "6": { "text": "Info", "color": "blue" }, "7": { "text": "Debug", "color": "text" } } }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": { "showHeader": true, "sortBy": [{ "displayName": "Matches", "desc": true }] },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "topk(25, sum by (rule_name, priority) (increase(falcosecurity_falco_rules_matches_total{priority=~\"$priority\",rule_name=~\"$rule\"}[$__range])))",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "rule_name": "Rule" } } }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Matches by node (Falco pod)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 8, "lineWidth": 2 },
+          "unit": "ops"
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (pod) (rate(falcosecurity_falco_rules_matches_total{priority=~\"$priority\",rule_name=~\"$rule\"}[5m]))",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Workload context (Falcosidekick)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "Events by Kubernetes namespace",
+      "description": "Requires falcosidekick ServiceMonitor — enriched with k8s_ns_name from Falco output fields",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 12, "lineWidth": 2, "stacking": { "mode": "normal" } },
+          "unit": "ops"
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max", "last"] },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "topk(15, sum by (k8s_ns_name) (rate(falcosecurity_falcosidekick_falco_events_total{k8s_ns_name=~\"$namespace\",rule=~\"$rule\"}[5m])))",
+          "legendFormat": "{{k8s_ns_name}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Events by pod (sidekick)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto" } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Value" },
+            "properties": [{ "id": "displayName", "value": "Events" }, { "id": "decimals", "value": 0 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "priority_raw" },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": { "type": "color-text" }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "critical": { "color": "red", "text": "critical" },
+                      "warning": { "color": "orange", "text": "warning" },
+                      "notice": { "color": "yellow", "text": "notice" },
+                      "info": { "color": "blue", "text": "info" }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": { "showHeader": true, "sortBy": [{ "displayName": "Events", "desc": true }] },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "topk(30, sum by (rule, k8s_ns_name, k8s_pod_name, priority_raw) (increase(falcosecurity_falcosidekick_falco_events_total{k8s_ns_name=~\"$namespace\",rule=~\"$rule\"}[$__range])))",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true },
+            "renameByName": {
+              "rule": "Rule",
+              "k8s_ns_name": "Namespace",
+              "k8s_pod_name": "Pod",
+              "priority_raw": "Priority"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Pipeline & agent health",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "collapsed": false
+    },
+    {
+      "type": "stat",
+      "title": "SCAP event drops /s",
+      "description": "Non-zero values mean Falco is losing kernel events — investigate agent load or buffer sizing",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 33 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "decimals": 3,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 0.001 }
+            ]
+          }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(falcosecurity_scap_n_drops_total[5m])) or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Output queue drops /s",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 33 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "decimals": 3,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 0.001 }
+            ]
+          }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(falcosecurity_falco_outputs_queue_num_drops_total[5m])) or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Slack notifications /s",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 33 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops", "decimals": 3 } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value" },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(falcosecurity_falcosidekick_outputs_total{destination=\"slack\",status=\"ok\"}[5m])) or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Sidekick delivery failures /s",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 33 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "decimals": 3,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 0.001 }
+            ]
+          }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(falcosecurity_falcosidekick_outputs_total{status!=\"ok\"}[5m])) or vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "SCAP drops by type",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 33 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 2 },
+          "unit": "ops"
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["max"] },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (pod) (rate(falcosecurity_scap_n_drops_buffer_total[5m]))",
+          "legendFormat": "buffer {{pod}}",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (pod) (rate(falcosecurity_scap_n_drops_full_threadtable_total[5m]))",
+          "legendFormat": "threadtable {{pod}}",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (pod) (rate(falcosecurity_scap_n_drops_scratch_map_total[5m]))",
+          "legendFormat": "scratch {{pod}}",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Falco agent CPU ratio",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 37 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 8, "lineWidth": 2 },
+          "unit": "percentunit",
+          "max": 1
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "falcosecurity_falco_cpu_usage_ratio",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Falco agent memory (RSS)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 37 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 8, "lineWidth": 2 },
+          "unit": "bytes"
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "falcosecurity_falco_memory_rss_bytes",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

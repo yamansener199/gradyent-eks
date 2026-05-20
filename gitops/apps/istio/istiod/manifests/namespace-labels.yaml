@@ -1,7 +1,28 @@
-# Istio sidecar injection for platform namespaces only (no default/app namespaces yet).
+# Istio sidecar injection for platform namespaces (restart workloads after label is applied).
 apiVersion: v1
 kind: Namespace
 metadata:
   name: monitoring
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: logging
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kyverno
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: falco
   labels:
     istio-injection: enabled

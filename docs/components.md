@@ -106,6 +106,7 @@ All Applications are defined under [`gitops/bootstrap/`](../gitops/bootstrap/) a
 - **Purpose:** Distributed tracing UI.
 - **Storage:** In-memory (dev/platform; not HA).
 - **Ingress:** `jaeger.dummy.cool`.
+- **Empty UI?** The app can be **Synced** while the UI shows no traces. Spans come from Istio sidecars (Zipkin → `jaeger-collector:9411`) or the `jaeger-tracegen` CronJob. Sync **istiod** (injection labels + Telemetry), restart platform pods in labeled namespaces, then sync **jaeger**. Use service `gradyent-tracegen` to confirm the pipeline.
 
 ---
 

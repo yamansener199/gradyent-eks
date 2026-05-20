@@ -7,7 +7,7 @@ Prometheus alert `KubePersistentVolumeFillingUp` is firing on cluster `gradyent-
 Workloads or platform components may be degraded.
 
 ## Diagnosis
-1. Open Grafana → **Overview** or default **Kubernetes** dashboards.
+1. Open Grafana → **SRE → Storage & PVCs**.
 2. `kubectl get pods -A | grep -v Running`
 3. `kubectl describe pod -n <namespace> <pod>`
 4. `kubectl get events -A --sort-by=.lastTimestamp | tail -20`

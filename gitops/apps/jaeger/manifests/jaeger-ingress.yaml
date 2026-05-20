@@ -10,6 +10,8 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443},{"HTTP":80}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    # ACM ARN is patched onto the Argo CD Application by eks-addons-bootstrap (patch-irsa.sh).
 spec:
   ingressClassName: alb
   rules:

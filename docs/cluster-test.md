@@ -197,7 +197,7 @@ kubectl -n monitoring port-forward svc/kube-prometheus-stack-prometheus 9090:909
 # Open http://localhost:9090 — Targets should be UP
 ```
 
-In Grafana (https://grafana.dummy.cool): open **Platform → Overview** dashboard.
+In Grafana (https://grafana.dummy.cool): open **SRE → On-call overview** (or **Overview → Gradyent Cluster Overview**). After syncing `kube-prometheus-stack`, dashboards under the **SRE** folder are provisioned automatically from ConfigMaps.
 
 ---
 

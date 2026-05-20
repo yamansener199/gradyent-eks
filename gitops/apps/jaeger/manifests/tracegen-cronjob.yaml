@@ -1,0 +1,36 @@
+# Emits sample Zipkin spans so the Jaeger UI has data even before Istio mesh tracing is rolled out.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: jaeger-tracegen
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: jaeger-tracegen
+    app.kubernetes.io/part-of: jaeger
+spec:
+  schedule: "*/2 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: jaeger-tracegen
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: tracegen
+              image: curlimages/curl:8.5.0
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  TS="$(date +%s)000000"
+                  TRACE="$(od -An -N16 -tx1 /dev/urandom | tr -d ' ')"
+                  SPAN="$(od -An -N8 -tx1 /dev/urandom | tr -d ' ')"
+                  curl -fsS -X POST "http://jaeger-collector.observability.svc.cluster.local:9411/api/v2/spans" \
+                    -H "Content-Type: application/json" \
+                    -d "[{\"traceId\":\"${TRACE}\",\"id\":\"${SPAN}\",\"name\":\"gradyent-tracegen\",\"timestamp\":${TS},\"duration\":120000,\"localEndpoint\":{\"serviceName\":\"gradyent-tracegen\"}}]"
+                  echo "span posted"

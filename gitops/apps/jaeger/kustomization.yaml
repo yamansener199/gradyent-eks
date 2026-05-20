@@ -13,3 +13,4 @@ helmCharts:
 
 resources:
   - manifests/jaeger-ingress.yaml
+  - manifests/tracegen-cronjob.yaml

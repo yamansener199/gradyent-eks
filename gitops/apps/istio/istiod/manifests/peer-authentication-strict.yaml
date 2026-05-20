@@ -4,5 +4,6 @@ metadata:
   name: default
   namespace: istio-system
 spec:
+  # PERMISSIVE allows gradual sidecar rollout; switch to STRICT after platform namespaces are injected.
   mtls:
-    mode: STRICT
+    mode: PERMISSIVE
