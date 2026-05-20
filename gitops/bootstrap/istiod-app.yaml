@@ -25,3 +25,7 @@ spec:
       kind: ValidatingWebhookConfiguration
       jqPathExpressions:
         - .webhooks[]?.failurePolicy
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
