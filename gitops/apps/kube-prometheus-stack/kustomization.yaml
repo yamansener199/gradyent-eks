@@ -10,7 +10,6 @@ helmCharts:
     releaseName: kube-prometheus-stack
     namespace: monitoring
     valuesFile: values.yaml
-    includeCRDs: false
 
 resources:
   - manifests/grafana-admin-secret.yaml

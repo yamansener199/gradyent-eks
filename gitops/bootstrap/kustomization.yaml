@@ -22,7 +22,6 @@ resources:
   - istio-base-app.yaml
   - istiod-app.yaml
   - fluentd-app.yaml
-  - kube-prometheus-stack-crds-app.yaml
   - kube-prometheus-stack-app.yaml
   - jaeger-app.yaml
 

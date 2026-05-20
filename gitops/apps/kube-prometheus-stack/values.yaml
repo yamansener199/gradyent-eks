@@ -1,6 +1,9 @@
-# CRDs are installed by gitops/apps/kube-prometheus-stack-crds (Argo sync wave 3).
+# CRDs are applied by a PreSync hook Job (server-side apply) before operator resources.
 crds:
-  enabled: false
+  enabled: true
+  upgradeJob:
+    enabled: true
+    forceConflicts: true
 
 # EKS-managed control plane — do not scrape empty endpoints.
 kubeControllerManager:
