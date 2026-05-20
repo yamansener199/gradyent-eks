@@ -1,27 +1,27 @@
 driver:
-  kind: modern_ebpf
-  modernEbpf:
-    # Single-CPU spot nodes (c7a.*) cannot allocate one buffer per 2 CPUs.
-    cpusForEachBuffer: 1
+  # modern_ebpf hangs on some AL2023 EKS nodes at "Trying to open the right engine"
+  # so /healthz never listens; legacy ebpf + driver-loader init is more reliable.
+  kind: ebpf
+  ebpf:
     bufSizePreset: 3
+    leastPrivileged: false
 
 falco:
   webserver:
     enabled: true
     prometheus_metrics_enabled: true
 
-# Falco OOMs (exit 137) during modern eBPF init on small nodes; probes then see connection refused.
 healthChecks:
   readinessProbe:
-    initialDelaySeconds: 90
+    initialDelaySeconds: 120
     periodSeconds: 15
     timeoutSeconds: 5
-    failureThreshold: 6
+    failureThreshold: 10
   livenessProbe:
-    initialDelaySeconds: 120
+    initialDelaySeconds: 180
     periodSeconds: 20
     timeoutSeconds: 5
-    failureThreshold: 5
+    failureThreshold: 8
 
 serviceAccount:
   create: true
