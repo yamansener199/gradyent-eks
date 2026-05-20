@@ -12,4 +12,5 @@ helmCharts:
     valuesFile: values.yaml
 
 resources:
+  - manifests/namespace.yaml
   - manifests/falcosidekick-notification-secret.yaml
