@@ -14,6 +14,7 @@ resources:
   - karpenter-app.yaml
   - karpenter-provisioner-app.yaml
   - cilium-app.yaml
+  - cilium-servicemonitors-app.yaml
   - kyverno-app.yaml
   - kyverno-policies-app.yaml
   - falco-app.yaml

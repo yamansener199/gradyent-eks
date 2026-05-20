@@ -21,6 +21,7 @@ output "platform_applications" {
     "karpenter",
     "karpenter-provisioner",
     "cilium",
+    "cilium-servicemonitors",
     "kyverno",
     "kyverno-policies",
     "falco",

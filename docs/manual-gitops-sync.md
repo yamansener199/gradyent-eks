@@ -98,8 +98,9 @@ In the UI, use **Sync** (not Refresh only). Respect sync waves so dependencies e
 | 9 | istio-base | 3 | Istio CRDs |
 | 10 | istiod | 3 | Istio control plane |
 | 11 | fluentd | 4 | Logs |
-| 12 | kube-prometheus-stack | 4 | Grafana Ingress → external-dns creates record |
-| 13 | jaeger | 4 | Jaeger Ingress → external-dns creates record |
+| 12 | kube-prometheus-stack | 4 | Monitoring / Grafana (installs ServiceMonitor CRDs) |
+| 13 | jaeger | 4 | Tracing |
+| 14 | cilium-servicemonitors | 5 | Cilium + Hubble metrics (after Prometheus CRDs) |
 
 **Tip:** After step 1, filter Applications by name. Sync **OutOfSync** apps in wave order. Use **Sync → Synchronize** with defaults; enable **Prune** only when you intend to delete removed resources.
 

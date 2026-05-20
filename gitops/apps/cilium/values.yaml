@@ -34,10 +34,8 @@ k8sServicePort: auto
 prometheus:
   enabled: true
   serviceMonitor:
-    enabled: true
-    trustCRDsExist: true
-    labels:
-      release: kube-prometheus-stack
+    # Applied by gitops/apps/cilium-servicemonitors after kube-prometheus-stack (wave 5).
+    enabled: false
 
 hubble:
   enabled: true
@@ -57,10 +55,7 @@ hubble:
       - icmp
       - http
     serviceMonitor:
-      enabled: true
-      trustCRDsExist: true
-      labels:
-        release: kube-prometheus-stack
+      enabled: false
 
 operator:
   replicas: 2
