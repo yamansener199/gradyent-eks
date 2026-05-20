@@ -3,7 +3,6 @@ driver:
 
 falco:
   jsonOutput: true
-  jsonIncludeOutputProperty: true
   webserver:
     enabled: true
     prometheus_metrics_enabled: true
@@ -77,7 +76,7 @@ customRules:
       desc: Outbound connection to ports or domains associated with mining pools
       condition: >
         outbound and container and
-        (fd.sport in (miner_pool_ports) or fd.dport in (miner_pool_ports) or
+        (fd.rport in (miner_pool_ports) or
          fd.sip.name contains "mining" or fd.sip.name contains "minergate" or
          fd.sip.name contains "nanopool" or fd.sip.name contains "f2pool" or
          fd.sip.name contains "antpool" or fd.sip.name contains "ethermine" or
