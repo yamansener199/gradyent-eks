@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-05-29T00:00:00.000Z" agent="Claude Infra Scanner" version="24.0.0">
+  <diagram name="AWS Infrastructure - Gradyent (043470661424)" id="infra-main">
+    <mxGraphModel dx="2200" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="3300" pageHeight="2400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Internet -->
+        <mxCell id="aws-internet" value="Internet" style="shape=cloud;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="20" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- CloudFront -->
+        <mxCell id="aws-cf-group" value="CloudFront Distributions" style="swimlane;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="130" width="1200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-cf-E1MAO93N7THKA6" value="cirevo.ai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="aws-cf-group">
+          <mxGeometry x="10" y="35" width="110" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-cf-E2XCJIQPPSXYK5" value="assets CDN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="aws-cf-group">
+          <mxGeometry x="130" y="35" width="110" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-cf-E24FZ8OW8NUN1C" value="dev.aura.cirevo.ai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="aws-cf-group">
+          <mxGeometry x="250" y="35" width="130" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-cf-E34XVWZV3784K2" value="czn-erp.cirevo.ai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="aws-cf-group">
+          <mxGeometry x="390" y="35" width="130" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-cf-EY3QTGUKOQRAV" value="socia.cirevo.ai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="aws-cf-group">
+          <mxGeometry x="530" y="35" width="120" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-cf-E1XC1787UPRO3L" value="media.socia.cirevo.ai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="aws-cf-group">
+          <mxGeometry x="660" y="35" width="140" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Route53 -->
+        <mxCell id="aws-r53" value="Route 53&#xa;cirevo.ai (37 records)&#xa;dummy.cool (15 records)" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.route_53;rounded=1;whiteSpace=wrap;html=1;fillColor=#F58534;fontColor=#ffffff;strokeColor=#E37400;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="350" y="140" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Internet to CloudFront -->
+        <mxCell id="conn-inet-cf" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="aws-internet" target="aws-cf-group" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- S3 Buckets (outside VPCs) -->
+        <mxCell id="aws-s3-group" value="S3 Buckets (19 total)" style="swimlane;startSize=25;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1900" y="130" width="350" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-s3-frontend-czn" value="czn-erp-frontend" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="aws-s3-group">
+          <mxGeometry x="10" y="30" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-s3-uploads-czn" value="czn-erp-uploads" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="aws-s3-group">
+          <mxGeometry x="120" y="30" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-s3-frontend-sc" value="socia-cirevo-frontend" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="aws-s3-group">
+          <mxGeometry x="10" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-s3-generated-sc" value="socia-cirevo-generated" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="aws-s3-group">
+          <mxGeometry x="120" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-s3-tfstate" value="terraform-state&#xa;(3 buckets)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="aws-s3-group">
+          <mxGeometry x="230" y="30" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-s3-cirevoai" value="cirevo.ai&#xa;(PUBLIC!)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;fontStyle=1;" vertex="1" parent="aws-s3-group">
+          <mxGeometry x="230" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-s3-other" value="+ 12 more buckets" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=10;" vertex="1" parent="aws-s3-group">
+          <mxGeometry x="10" y="140" width="110" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- CloudFront to S3 connections -->
+        <mxCell id="conn-cf-s3-czn" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;" edge="1" source="aws-cf-E34XVWZV3784K2" target="aws-s3-frontend-czn" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-cf-s3-sc" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;" edge="1" source="aws-cf-EY3QTGUKOQRAV" target="aws-s3-frontend-sc" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-cf-s3-media" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;" edge="1" source="aws-cf-E1XC1787UPRO3L" target="aws-s3-generated-sc" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- VPC 1: czn-erp-vpc -->
+        <!-- ============================================ -->
+        <mxCell id="aws-vpc-czn" value="VPC: czn-erp-vpc (vpc-09336a796e8689f86)&#xa;CIDR: 10.0.0.0/16 | Env: production | Managed: terraform" style="swimlane;startSize=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="380" width="1100" height="700" as="geometry" />
+        </mxCell>
+
+        <!-- IGW czn-erp -->
+        <mxCell id="aws-igw-czn" value="IGW&#xa;igw-0892b06..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6e6;strokeColor=#666666;fontSize=10;" vertex="1" parent="aws-vpc-czn">
+          <mxGeometry x="470" y="5" width="110" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Public Subnets czn-erp -->
+        <mxCell id="aws-subnet-czn-pub" value="Public Subnets" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" vertex="1" parent="aws-vpc-czn">
+          <mxGeometry x="30" y="50" width="1040" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-czn-pub-1a" value="public-eu-central-1a&#xa;10.0.1.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" vertex="1" parent="aws-subnet-czn-pub">
+          <mxGeometry x="20" y="30" width="140" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-czn-pub-1b" value="public-eu-central-1b&#xa;10.0.2.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" vertex="1" parent="aws-subnet-czn-pub">
+          <mxGeometry x="180" y="30" width="140" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ALB czn-erp -->
+        <mxCell id="aws-alb-czn" value="ALB: czn-erp-alb&#xa;(internet-facing)&#xa;czn-erp-alb-1693999301.eu-central-1.elb.amazonaws.com" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" vertex="1" parent="aws-subnet-czn-pub">
+          <mxGeometry x="400" y="25" width="350" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- NAT Gateways czn-erp -->
+        <mxCell id="aws-nat-czn-1a" value="NAT GW&#xa;63.178.75.249" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6e6;strokeColor=#666666;fontSize=9;" vertex="1" parent="aws-subnet-czn-pub">
+          <mxGeometry x="20" y="80" width="120" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-nat-czn-1b" value="NAT GW&#xa;18.159.165.251" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6e6;strokeColor=#666666;fontSize=9;" vertex="1" parent="aws-subnet-czn-pub">
+          <mxGeometry x="180" y="80" width="120" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Private App Subnets czn-erp -->
+        <mxCell id="aws-subnet-czn-priv" value="Private App Subnets (ECS Fargate)" style="swimlane;startSize=25;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" vertex="1" parent="aws-vpc-czn">
+          <mxGeometry x="30" y="200" width="1040" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-czn-priv-1a" value="private-eu-central-1a&#xa;10.0.10.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="aws-subnet-czn-priv">
+          <mxGeometry x="20" y="30" width="140" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-czn-priv-1b" value="private-eu-central-1b&#xa;10.0.11.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="aws-subnet-czn-priv">
+          <mxGeometry x="180" y="30" width="140" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ECS czn-erp services -->
+        <mxCell id="aws-ecs-czn" value="ECS Cluster: czn-erp&#xa;(24 Fargate tasks)" style="swimlane;startSize=30;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontStyle=1;" vertex="1" parent="aws-subnet-czn-priv">
+          <mxGeometry x="380" y="25" width="640" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-auth" value="auth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="10" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-gateway" value="gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="90" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-core" value="core" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="170" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-finance" value="finance" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="250" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-hr" value="hr" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="330" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-kitchen" value="kitchen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="410" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-pos" value="pos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="490" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-procurement" value="procurement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="10" y="70" width="80" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-reporting" value="reporting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="100" y="70" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-reservation" value="reservation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="180" y="70" width="80" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-websocket" value="websocket" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="270" y="70" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-workflow" value="workflow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="350" y="70" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-czn-migration" value="migration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-czn">
+          <mxGeometry x="430" y="70" width="70" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- RDS Proxy -->
+        <mxCell id="aws-rdsproxy-czn" value="RDS Proxy&#xa;czn-erp-db-proxy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="aws-subnet-czn-priv">
+          <mxGeometry x="20" y="100" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Database Subnets czn-erp -->
+        <mxCell id="aws-subnet-czn-db" value="Private Database Subnets" style="swimlane;startSize=25;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;" vertex="1" parent="aws-vpc-czn">
+          <mxGeometry x="30" y="400" width="500" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-czn-db-1a" value="db-eu-central-1a&#xa;10.0.20.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="aws-subnet-czn-db">
+          <mxGeometry x="20" y="30" width="130" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-czn-db-1b" value="db-eu-central-1b&#xa;10.0.21.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="aws-subnet-czn-db">
+          <mxGeometry x="170" y="30" width="130" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-rds-czn" value="RDS: czn-erp-db&#xa;PostgreSQL 16.10&#xa;db.t4g.micro | 150GB | Multi-AZ" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="aws-subnet-czn-db">
+          <mxGeometry x="20" y="75" width="280" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ElastiCache Subnets czn-erp -->
+        <mxCell id="aws-subnet-czn-ec" value="Private ElastiCache Subnets" style="swimlane;startSize=25;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;" vertex="1" parent="aws-vpc-czn">
+          <mxGeometry x="560" y="400" width="500" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-czn-ec-1a" value="elasticache-eu-central-1a&#xa;10.0.30.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="aws-subnet-czn-ec">
+          <mxGeometry x="20" y="30" width="150" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-czn-ec-1b" value="elasticache-eu-central-1b&#xa;10.0.31.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="aws-subnet-czn-ec">
+          <mxGeometry x="200" y="30" width="150" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-redis-czn" value="ElastiCache: czn-erp-redis&#xa;Redis 7.1.0 | cache.t4g.micro | 2 nodes" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="aws-subnet-czn-ec">
+          <mxGeometry x="20" y="75" width="330" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Secrets & KMS -->
+        <mxCell id="aws-secrets-czn" value="Secrets Manager (7)&#xa;+ KMS Keys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;" vertex="1" parent="aws-vpc-czn">
+          <mxGeometry x="30" y="560" width="150" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- SNS -->
+        <mxCell id="aws-sns-czn" value="SNS: czn-erp-alarms" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;" vertex="1" parent="aws-vpc-czn">
+          <mxGeometry x="200" y="560" width="150" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- DynamoDB lock -->
+        <mxCell id="aws-ddb-czn" value="DynamoDB&#xa;czn-erp-terraform-locks" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="aws-vpc-czn">
+          <mxGeometry x="380" y="550" width="150" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Connections within czn-erp VPC -->
+        <mxCell id="conn-alb-ecs-czn" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;" edge="1" source="aws-alb-czn" target="aws-ecs-czn" parent="aws-vpc-czn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-ecs-proxy-czn" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;" edge="1" source="aws-ecs-czn" target="aws-rdsproxy-czn" parent="aws-vpc-czn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-proxy-rds-czn" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;" edge="1" source="aws-rdsproxy-czn" target="aws-rds-czn" parent="aws-vpc-czn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-ecs-redis-czn" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;dashed=1;" edge="1" source="aws-ecs-czn" target="aws-redis-czn" parent="aws-vpc-czn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- VPC 2: socia-cirevo-vpc -->
+        <!-- ============================================ -->
+        <mxCell id="aws-vpc-sc" value="VPC: socia-cirevo-vpc (vpc-0889986dafdab822c)&#xa;CIDR: 10.0.0.0/16 | Env: dev | Managed: Terragrunt" style="swimlane;startSize=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="1130" width="1100" height="580" as="geometry" />
+        </mxCell>
+
+        <!-- IGW socia-cirevo -->
+        <mxCell id="aws-igw-sc" value="IGW&#xa;igw-060ea07d..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6e6;strokeColor=#666666;fontSize=10;" vertex="1" parent="aws-vpc-sc">
+          <mxGeometry x="470" y="5" width="110" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Public Subnets socia-cirevo -->
+        <mxCell id="aws-subnet-sc-pub" value="Public Subnets" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" vertex="1" parent="aws-vpc-sc">
+          <mxGeometry x="30" y="50" width="1040" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-sc-pub-1a" value="public-eu-central-1a&#xa;10.0.0.0/20" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" vertex="1" parent="aws-subnet-sc-pub">
+          <mxGeometry x="20" y="30" width="140" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-sc-pub-1b" value="public-eu-central-1b&#xa;10.0.16.0/20" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" vertex="1" parent="aws-subnet-sc-pub">
+          <mxGeometry x="180" y="30" width="140" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ALBs socia-cirevo -->
+        <mxCell id="aws-alb-sc-ext" value="ALB: socia-cirevo-dev-alb&#xa;(internet-facing)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" vertex="1" parent="aws-subnet-sc-pub">
+          <mxGeometry x="400" y="25" width="250" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- NAT Gateway socia-cirevo -->
+        <mxCell id="aws-nat-sc-1a" value="NAT GW&#xa;3.126.131.253" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6e6;strokeColor=#666666;fontSize=9;" vertex="1" parent="aws-subnet-sc-pub">
+          <mxGeometry x="20" y="80" width="120" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Private Subnets socia-cirevo -->
+        <mxCell id="aws-subnet-sc-priv" value="Private Subnets (ECS Fargate)" style="swimlane;startSize=25;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" vertex="1" parent="aws-vpc-sc">
+          <mxGeometry x="30" y="200" width="1040" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-sc-priv-1a" value="private-eu-central-1a&#xa;10.0.32.0/20" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="aws-subnet-sc-priv">
+          <mxGeometry x="20" y="30" width="140" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-subnet-sc-priv-1b" value="private-eu-central-1b&#xa;10.0.48.0/20" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="aws-subnet-sc-priv">
+          <mxGeometry x="180" y="30" width="140" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Internal ALB -->
+        <mxCell id="aws-alb-sc-int" value="ALB: sc-int-alb&#xa;(internal)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" vertex="1" parent="aws-subnet-sc-priv">
+          <mxGeometry x="20" y="80" width="200" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ECS socia-cirevo -->
+        <mxCell id="aws-ecs-sc" value="ECS Cluster: socia-cirevo-dev&#xa;(11 Fargate tasks)" style="swimlane;startSize=30;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontStyle=1;" vertex="1" parent="aws-subnet-sc-priv">
+          <mxGeometry x="380" y="25" width="640" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-api" value="api" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="10" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-auth" value="auth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="90" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-gateway" value="gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="170" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-media" value="media" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="250" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-payment" value="payment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="330" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-worker" value="worker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="410" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-beat" value="worker-beat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="490" y="35" width="80" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-st-api" value="social-tracker-api" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="10" y="70" width="110" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-st-worker" value="social-tracker-worker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="130" y="70" width="120" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-st-beat" value="social-tracker-beat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="260" y="70" width="110" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ecs-sc-st-analysis" value="analysis-worker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="aws-ecs-sc">
+          <mxGeometry x="380" y="70" width="100" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Database for socia-cirevo -->
+        <mxCell id="aws-subnet-sc-db" value="Database &amp; Cache Tier" style="swimlane;startSize=25;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;" vertex="1" parent="aws-vpc-sc">
+          <mxGeometry x="30" y="400" width="700" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-rds-sc" value="RDS: socia-cirevo-dev-postgres&#xa;PostgreSQL 15.17 | db.t3.micro | 20GB | Single-AZ" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="aws-subnet-sc-db">
+          <mxGeometry x="20" y="30" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-redis-sc" value="ElastiCache: socia-cirevo-redis&#xa;Redis 7.0.7 | cache.t3.micro | 1 node" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="aws-subnet-sc-db">
+          <mxGeometry x="350" y="30" width="300" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- SQS + SNS -->
+        <mxCell id="aws-sqs-sc" value="SQS: content-generation&#xa;+ DLQ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;" vertex="1" parent="aws-vpc-sc">
+          <mxGeometry x="760" y="420" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-sns-sc" value="SNS: socia-cirevo-alerts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;" vertex="1" parent="aws-vpc-sc">
+          <mxGeometry x="760" y="470" width="150" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Connections within socia-cirevo VPC -->
+        <mxCell id="conn-alb-ecs-sc" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;" edge="1" source="aws-alb-sc-ext" target="aws-ecs-sc" parent="aws-vpc-sc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-int-alb-ecs-sc" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;dashed=1;" edge="1" source="aws-alb-sc-int" target="aws-ecs-sc" parent="aws-vpc-sc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-ecs-rds-sc" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;" edge="1" source="aws-ecs-sc" target="aws-rds-sc" parent="aws-vpc-sc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-ecs-redis-sc" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;dashed=1;" edge="1" source="aws-ecs-sc" target="aws-redis-sc" parent="aws-vpc-sc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- VPC 3: Default VPC -->
+        <!-- ============================================ -->
+        <mxCell id="aws-vpc-default" value="VPC: default (vpc-05df3888666461210)&#xa;CIDR: 172.31.0.0/16" style="swimlane;startSize=35;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontStyle=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="380" width="500" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-ec2-test" value="EC2: i-0a59077c9cb14ae90&#xa;test | t3.micro | STOPPED&#xa;172.31.34.145&#xa;SG: launch-wizard-3 (SSH OPEN!)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;fontStyle=1;" vertex="1" parent="aws-vpc-default">
+          <mxGeometry x="30" y="50" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aws-default-note" value="3 launch-wizard SGs with SSH (22)&#xa;open to 0.0.0.0/0 - SECURITY RISK" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=18;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;fontStyle=1;fontColor=#b85450;" vertex="1" parent="aws-vpc-default">
+          <mxGeometry x="280" y="50" width="190" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- CloudFront to ALB connections -->
+        <mxCell id="conn-cf-alb-czn" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="aws-cf-E34XVWZV3784K2" target="aws-vpc-czn" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Internet to IGW connections -->
+        <mxCell id="conn-inet-igw-czn" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;" edge="1" source="aws-internet" target="aws-igw-czn" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Title -->
+        <mxCell id="title" value="AWS Infrastructure Diagram - Gradyent&#xa;Account: 043470661424 | Region: eu-central-1&#xa;Date: 2026-05-29 | Total Resources: 164" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="20" width="340" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="Legend" style="swimlane;startSize=20;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1900" y="380" width="350" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-vpc" value="VPC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="25" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-pub" value="Public Subnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" vertex="1" parent="legend">
+          <mxGeometry x="90" y="25" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-priv" value="Private Subnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="legend">
+          <mxGeometry x="180" y="25" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-compute" value="Compute" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="55" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-db" value="Database/Cache" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" vertex="1" parent="legend">
+          <mxGeometry x="90" y="55" width="90" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-storage" value="Storage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="legend">
+          <mxGeometry x="190" y="55" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-lb" value="Load Balancer" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="85" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-warn" value="Security Warning" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;fontStyle=1;" vertex="1" parent="legend">
+          <mxGeometry x="120" y="85" width="100" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
