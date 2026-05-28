@@ -1,0 +1,205 @@
+graph TB
+    %% AWS Infrastructure Diagram - Gradyent
+    %% Account: 043470661424 | Region: eu-central-1
+    %% Date: 2026-05-29
+
+    Internet((Internet))
+
+    %% Route53
+    R53[Route53<br/>cirevo.ai - 37 records<br/>dummy.cool - 15 records]
+
+    %% CloudFront Distributions
+    subgraph CloudFront["CloudFront Distributions (6)"]
+        CF1[cirevo.ai]
+        CF2[assets CDN]
+        CF3[dev.aura.cirevo.ai]
+        CF4[czn-erp.cirevo.ai]
+        CF5[socia.cirevo.ai]
+        CF6[media.socia.cirevo.ai]
+    end
+
+    Internet --> R53
+    R53 --> CloudFront
+    Internet --> CloudFront
+
+    %% S3 Buckets
+    subgraph S3["S3 Buckets (19 total)"]
+        S3_CZN_FE[(czn-erp-frontend)]
+        S3_CZN_UP[(czn-erp-uploads)]
+        S3_SC_FE[(socia-cirevo-frontend)]
+        S3_SC_GEN[(socia-cirevo-generated)]
+        S3_CIREVO[("cirevo.ai<br/>⚠ NO PUBLIC BLOCK")]
+        S3_TF[(terraform-state x3)]
+        S3_OTHER[(+ 12 more buckets)]
+    end
+
+    CF1 --> S3_CIREVO
+    CF2 --> S3_CZN_UP
+    CF4 --> S3_CZN_FE
+    CF5 --> S3_SC_FE
+    CF6 --> S3_SC_GEN
+
+    %% =============================================
+    %% VPC 1: czn-erp-vpc (Production)
+    %% =============================================
+    subgraph VPC_CZN["VPC: czn-erp-vpc | 10.0.0.0/16 | Production"]
+
+        IGW_CZN[IGW<br/>igw-0892b06...]
+
+        subgraph CZN_PUB["Public Subnets"]
+            CZN_PUB_1A[public-1a<br/>10.0.1.0/24]
+            CZN_PUB_1B[public-1b<br/>10.0.2.0/24]
+            NAT_CZN_1A[NAT GW 1a<br/>63.178.75.249]
+            NAT_CZN_1B[NAT GW 1b<br/>18.159.165.251]
+            ALB_CZN[/ALB: czn-erp-alb<br/>internet-facing\]
+        end
+
+        subgraph CZN_PRIV["Private App Subnets"]
+            CZN_PRIV_1A[private-1a<br/>10.0.10.0/24]
+            CZN_PRIV_1B[private-1b<br/>10.0.11.0/24]
+            RDS_PROXY[RDS Proxy<br/>czn-erp-db-proxy]
+
+            subgraph ECS_CZN["ECS: czn-erp (24 Fargate tasks, 13 services)"]
+                CZN_SVC_AUTH[auth]
+                CZN_SVC_GW[gateway]
+                CZN_SVC_CORE[core]
+                CZN_SVC_FIN[finance]
+                CZN_SVC_HR[hr]
+                CZN_SVC_KITCHEN[kitchen]
+                CZN_SVC_POS[pos]
+                CZN_SVC_PROC[procurement]
+                CZN_SVC_RPT[reporting]
+                CZN_SVC_RES[reservation]
+                CZN_SVC_WS[websocket]
+                CZN_SVC_WF[workflow]
+                CZN_SVC_MIG[migration]
+            end
+        end
+
+        subgraph CZN_DB["Private Database Subnets"]
+            CZN_DB_1A[db-1a<br/>10.0.20.0/24]
+            CZN_DB_1B[db-1b<br/>10.0.21.0/24]
+            RDS_CZN[(RDS: czn-erp-db<br/>PostgreSQL 16.10<br/>db.t4g.micro | 150GB<br/>Multi-AZ)]
+        end
+
+        subgraph CZN_EC["Private ElastiCache Subnets"]
+            CZN_EC_1A[elasticache-1a<br/>10.0.30.0/24]
+            CZN_EC_1B[elasticache-1b<br/>10.0.31.0/24]
+            REDIS_CZN[(Redis: czn-erp-redis<br/>Redis 7.1.0<br/>cache.t4g.micro | 2 nodes)]
+        end
+
+        VPCE_CZN[VPC Endpoint<br/>Interface]
+        SNS_CZN[SNS: czn-erp-alarms]
+        SECRETS_CZN[Secrets Manager x7<br/>+ KMS Keys]
+        DDB_CZN[(DynamoDB<br/>terraform-locks)]
+    end
+
+    %% czn-erp connections
+    Internet --> IGW_CZN
+    CF4 --> ALB_CZN
+    IGW_CZN --> CZN_PUB_1A
+    IGW_CZN --> CZN_PUB_1B
+    ALB_CZN --> ECS_CZN
+    NAT_CZN_1A --> CZN_PRIV_1A
+    NAT_CZN_1B --> CZN_PRIV_1B
+    ECS_CZN --> RDS_PROXY
+    RDS_PROXY --> RDS_CZN
+    ECS_CZN --> REDIS_CZN
+    ECS_CZN --> SECRETS_CZN
+
+    %% =============================================
+    %% VPC 2: socia-cirevo-vpc (Dev)
+    %% =============================================
+    subgraph VPC_SC["VPC: socia-cirevo-vpc | 10.0.0.0/16 | Dev"]
+
+        IGW_SC[IGW<br/>igw-060ea07d...]
+
+        subgraph SC_PUB["Public Subnets"]
+            SC_PUB_1A[public-1a<br/>10.0.0.0/20]
+            SC_PUB_1B[public-1b<br/>10.0.16.0/20]
+            NAT_SC_1A["NAT GW 1a<br/>3.126.131.253<br/>⚠ Single NAT for both AZs"]
+            ALB_SC_EXT[/ALB: socia-cirevo-dev-alb<br/>internet-facing\]
+        end
+
+        subgraph SC_PRIV["Private Subnets"]
+            SC_PRIV_1A[private-1a<br/>10.0.32.0/20]
+            SC_PRIV_1B[private-1b<br/>10.0.48.0/20]
+            ALB_SC_INT[/ALB: sc-int-alb<br/>internal\]
+
+            subgraph ECS_SC["ECS: socia-cirevo-dev (11 Fargate tasks, 11 services)"]
+                SC_SVC_API[api]
+                SC_SVC_AUTH[auth]
+                SC_SVC_GW[gateway]
+                SC_SVC_MEDIA[media]
+                SC_SVC_PAY[payment]
+                SC_SVC_WORKER[worker]
+                SC_SVC_BEAT[worker-beat]
+                SC_SVC_ST_API[social-tracker-api]
+                SC_SVC_ST_W[social-tracker-worker]
+                SC_SVC_ST_B[social-tracker-beat]
+                SC_SVC_ST_A[analysis-worker]
+            end
+        end
+
+        subgraph SC_DB["Database & Cache Tier"]
+            RDS_SC[(RDS: socia-cirevo-dev-postgres<br/>PostgreSQL 15.17<br/>db.t3.micro | 20GB | Single-AZ)]
+            REDIS_SC[(Redis: socia-cirevo-redis<br/>Redis 7.0.7<br/>cache.t3.micro | 1 node)]
+        end
+
+        SQS_SC[SQS: content-generation<br/>+ DLQ]
+        SNS_SC[SNS: socia-cirevo-alerts]
+        SECRETS_SC[Secrets Manager x11]
+    end
+
+    %% socia-cirevo connections
+    Internet --> IGW_SC
+    IGW_SC --> SC_PUB_1A
+    IGW_SC --> SC_PUB_1B
+    ALB_SC_EXT --> ECS_SC
+    ALB_SC_INT --> ECS_SC
+    NAT_SC_1A --> SC_PRIV_1A
+    NAT_SC_1A --> SC_PRIV_1B
+    ECS_SC --> RDS_SC
+    ECS_SC --> REDIS_SC
+    ECS_SC --> SQS_SC
+    ECS_SC --> SECRETS_SC
+
+    %% =============================================
+    %% VPC 3: Default VPC
+    %% =============================================
+    subgraph VPC_DEFAULT["VPC: default | 172.31.0.0/16 ⚠"]
+        EC2_TEST["EC2: i-0a59077c9cb14ae90<br/>test | t3.micro | STOPPED<br/>172.31.34.145<br/>⚠ SG: launch-wizard-3 (SSH open 0.0.0.0/0)"]
+        SG_WARN["⚠ 3 launch-wizard SGs<br/>with SSH (22) open to 0.0.0.0/0"]
+    end
+
+    %% DynamoDB (outside VPC)
+    DDB_GRAD[(DynamoDB<br/>gradyent-tf-locks)]
+    DDB_SC_TF[(DynamoDB<br/>socia-cirevo-terraform-locks)]
+
+    %% Private Route53
+    subgraph R53_PRIV["Private DNS"]
+        R53_INTERNAL[internal.cirevo.local<br/>x2 zones]
+        R53_APPLOCAL[app.local<br/>Cloud Map - 26 records]
+    end
+
+    ECS_CZN -.-> R53_APPLOCAL
+    ECS_SC -.-> R53_APPLOCAL
+
+    %% Styling
+    classDef vpc fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px
+    classDef pubSubnet fill:#fff2cc,stroke:#d6b656
+    classDef privSubnet fill:#d5e8d4,stroke:#82b366
+    classDef compute fill:#f8cecc,stroke:#b85450
+    classDef database fill:#e1d5e7,stroke:#9673a6
+    classDef storage fill:#d5e8d4,stroke:#82b366
+    classDef lb fill:#dae8fc,stroke:#6c8ebf
+    classDef warning fill:#f8cecc,stroke:#b85450,stroke-width:3px,color:#b85450
+
+    class VPC_CZN,VPC_SC vpc
+    class CZN_PUB,SC_PUB pubSubnet
+    class CZN_PRIV,SC_PRIV,CZN_DB,CZN_EC,SC_DB privSubnet
+    class ECS_CZN,ECS_SC,EC2_TEST compute
+    class RDS_CZN,RDS_SC,REDIS_CZN,REDIS_SC,DDB_CZN,DDB_GRAD,DDB_SC_TF database
+    class S3_CZN_FE,S3_CZN_UP,S3_SC_FE,S3_SC_GEN,S3_TF,S3_OTHER storage
+    class ALB_CZN,ALB_SC_EXT,ALB_SC_INT lb
+    class S3_CIREVO,SG_WARN,VPC_DEFAULT warning
